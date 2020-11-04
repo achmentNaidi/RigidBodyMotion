@@ -25,8 +25,6 @@ public:
 	void readInitial2D_Structured(string fileName);
 	void write2D_Structured(gridInfo2D_Structured gI, string gridName);
 
-	void readInitialMesh(string eleFile, string nodFile);				  // 2D MESH
-	void readInitialMesh(string eleFile, string hybFile, string nodFile); // 3D MESH
 	void read(string name);
 
 	void readDeformed2D_Unstructured(string defFile);
@@ -40,8 +38,6 @@ public:
 	void readPatchesFile(string filename);
 
 	gridInfo2D_Structured getInfo2D_Structured() { return gInfo_st; }
-	gridInfo2D_Unstructured getInfo2D_Unstructured() { return gInfo_un; }
-	gridInfo3D_Unstructured getInfo3D_Unstructured() { return gInfo3D_un; }
 	gridInfo getInfo() { return gInfo; }
 	~ioGrids();
 
@@ -51,7 +47,5 @@ private:
 	string fileName;
 	map<string, patch> patces;
 	gridInfo2D_Structured gInfo_st;
-	gridInfo2D_Unstructured gInfo_un;
-	gridInfo3D_Unstructured gInfo3D_un;
 	gridInfo gInfo;
 };

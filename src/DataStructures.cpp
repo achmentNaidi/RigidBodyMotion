@@ -17,10 +17,17 @@ DataStructures::DataStructures() {}
 
 //===================2D===========================//
 
-DataStructures::DataStructures(int ns_, int np_, int nq_, vector<int> &nu_) : ns(ns_), np(np_), nq(nq_), nu(nu_) {}
+DataStructures::DataStructures(int ns_, int np_, int nq_, double **coor_, vector<int> &logfr_, vector<int> &nu_) : logfr(logfr_), coor(coor_), ns(ns_), np(np_), nq(nq_), nu(nu_)
+{
+	listnp1.resize(maxlist + 1);
+	listnp2.resize(maxlist + 1);
+}
 
 void DataStructures::Create2D()
 {
+	filistn();
+	setperio();
+
 	if (np + nq > maxpyr)
 	{
 		cout << "geom2d: Increase maxpyr at DataStructures.h" << endl;
@@ -682,10 +689,7 @@ void DataStructures::filistn()
 
 	cout << "Nodes are listed as follows: " << endl;
 
-	for (unsigned int i = 0; i <= maxlist; i++)
-	{
-		listnp1[i] = 1;
-	}
+	for_each(begin(listnp1), end(listnp1), [](int &i) -> int { return i = 1; });
 
 	for (unsigned int ktype = 0; ktype <= 6; ktype++)
 	{
@@ -819,7 +823,7 @@ void DataStructures::setperio()
 			{
 				continue;
 			}
-			dyy = abs(coor[1][is - 1] - coor[1][js - 1]);
+			dyy = abs(coor[0][is - 1] - coor[0][js - 1]);
 			dzz = abs(coor[2][is - 1] - coor[2][js - 1]);
 			if (dyy < eps && dzz < eps)
 			{
@@ -827,10 +831,11 @@ void DataStructures::setperio()
 				nper++;
 				iper[0][nper - 1] = is;
 				iper[1][nper - 1] = js;
-				break;
+				goto LINE837;
 			}
 		}
 		cout << "Warning: No pair found for node " << is << ", " << coor[0][is - 1] << endl;
+	LINE837:;
 	}
 	// If sequential run (not a slave) all LOGFR=1 nodes should be matched
 
@@ -850,14 +855,14 @@ void DataStructures::setperio()
 	{
 		is = iper[0][kper];
 		js = iper[1][kper];
-		if (coor[0][kper] > coor[0][js - 1])
+		if (coor[1][is - 1] > coor[1][js - 1])
 		{
 			iper[0][kper] = js;
 			iper[1][kper] = is;
 			is = iper[0][kper]; // renew is,js for ds
 			js = iper[1][kper];
 		}
-		ds = coor[0][js - 1] - coor[0][is - 1];
+		ds = coor[1][js - 1] - coor[1][is - 1];
 		if (ds > dsmax)
 			dsmax = ds;
 		if (ds < dsmin)

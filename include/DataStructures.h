@@ -17,21 +17,6 @@ struct gridInfo2D_Structured
 	vector<double> xf, yf;
 };
 
-struct gridInfo2D_Unstructured
-{
-	vector<int> nu, logfr;
-	double **coor, **coorp;
-	int np, nq, nall, nentries, nprev, ns;
-};
-
-struct gridInfo3D_Unstructured
-{
-	vector<int> nu, logfr;
-	double **coor, **coorp;
-	int nall, np = 0, nq = 0, ntet = 0, npyr = 0, npri = 0, nhex = 0;
-	int ns, nseg, nentries, nentrsg;
-};
-
 //  STAY HERE
 struct gridInfo
 {
@@ -45,7 +30,7 @@ class DataStructures
 {
 public:
 	DataStructures();
-	DataStructures(int ns, int np, int nq, vector<int> &nu);
+	DataStructures(int ns_, int np_, int nq_, double **coor_, vector<int> &logfr_, vector<int> &nu_);
 	DataStructures(vector<int> &logfr_, int ns_, double **coor_, int ntet,
 				   int npyr, int npri, int nhex, int nall, vector<int> &nu);
 	void Create2D();

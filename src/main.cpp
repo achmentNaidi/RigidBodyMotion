@@ -41,7 +41,7 @@ int main()
 		gInfo = ionGrid.getInfo();
 
 		// 5. CREATE DATA STRUCTURE OF UNSTRUCTURED GRID
-		DataStructures dataStructure2D(gInfo.ns, gInfo.np, gInfo.nq, gInfo.nu);
+		DataStructures dataStructure2D(gInfo.ns, gInfo.np, gInfo.nq,gInfo.coor, gInfo.logfr,gInfo.nu);
 		dataStructure2D.Create2D();
 		// gInfo = ionGrid.getInfo2D_Unstructured();
 		gInfo = ionGrid.getInfo();
