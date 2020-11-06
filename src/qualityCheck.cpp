@@ -1,4 +1,4 @@
-#include "../include/qualityCheck.h"
+#include "qualityCheck.h"
 
 qualityCheck::qualityCheck(){};
 qualityCheck::qualityCheck(double **coorp_, vector<int> nu_, int np_)
@@ -165,7 +165,7 @@ void qualityCheck::shapeMetric(double **cl, int ntet, string eleFile)
 	eleFile += ".ele";
 	ifstream elefile;
 
-	elefile.open("../input_data/" + eleFile);
+	elefile.open("input_data/" + eleFile);
 
 	if (elefile.fail())
 	{
@@ -178,7 +178,7 @@ void qualityCheck::shapeMetric(double **cl, int ntet, string eleFile)
 	double riza2 = sqrt(2.);
 
 	ofstream qualityFile;
-	qualityFile.open("../output_data/Mesh_Quality");
+	qualityFile.open("output_data/Mesh_Quality");
 	qualityFile << endl
 				<< endl;
 
@@ -267,7 +267,7 @@ void qualityCheck::Jacobian(double **cl, int ntet, string eleFile)
 
 	eleFile += ".ele";
 	ifstream elefile;
-	elefile.open("../input_data/" + eleFile);
+	elefile.open("input_data/" + eleFile);
 
 	if (elefile.fail())
 	{
@@ -280,7 +280,7 @@ void qualityCheck::Jacobian(double **cl, int ntet, string eleFile)
 	double riza2 = sqrt(2.);
 
 	ofstream qualityFile;
-	qualityFile.open("../output_data/Mesh_Quality");
+	qualityFile.open("output_data/Mesh_Quality");
 	qualityFile << endl
 				<< endl;
 
@@ -354,7 +354,7 @@ void qualityCheck::aspectRatio(double **cl, int ntet, string eleFile)
 	eleFile += ".ele";
 	ifstream elefile;
 
-	elefile.open("../input_data/" + eleFile);
+	elefile.open("input_data/" + eleFile);
 
 	if (elefile.fail())
 	{
@@ -367,7 +367,7 @@ void qualityCheck::aspectRatio(double **cl, int ntet, string eleFile)
 	double riza2 = sqrt(2.);
 
 	ofstream qualityFile;
-	qualityFile.open("../output_data/aspect_ratio_tet");
+	qualityFile.open("output_data/aspect_ratio_tet");
 	qualityFile << endl
 				<< endl;
 

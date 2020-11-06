@@ -1,10 +1,10 @@
 #include <iostream>
 #include <math.h>
-#include "../include/DataStructures.h"
-#include "../include/ioGrid.h"
-#include "../include/qualityCheck.h"
-#include "../include/Solver.h"
-#include "../include/geomHandle.h"
+#include "DataStructures.h"
+#include "ioGrid.h"
+#include "qualityCheck.h"
+#include "Solver.h"
+#include "geomHandle.h"
 
 using namespace std;
 int main()
@@ -62,6 +62,7 @@ int main()
 
 		// 8. WRITE new.nod file
 		ionGrid.write_mesh(dim, gInfo.coorp, gInfo.coor, gInfo.logfr, gInfo.ns, "siev.nod");
+		ionGrid.write_Un3D(gInfo.coorp, "sievGnu.dat");
 		break;
 	}
 	case 3:

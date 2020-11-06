@@ -1,4 +1,4 @@
-#include "../include/Solver.h"
+#include "Solver.h"
 /*=====================================================
   =====================================================
   Created by Alexandros Eskantar and
@@ -14,9 +14,9 @@
 
 Numerics::Numerics() {}
 
-Numerics::Numerics(double **coorp_, double **coor_, int **iper_, vector<int>& logfr_, vector<int>& ndeg_, vector<int>& jaret_,
-	vector<int>& nu_, int ns_, int np_, double pitch_) : coorp(coorp_), coor(coor_), iper(iper_), logfr(logfr_), ndeg(ndeg_), jaret(jaret_),
-				   nu(nu_), ns(ns_), np(np_), pitch(pitch_) {}
+Numerics::Numerics(double **coorp_, double **coor_, int **iper_, vector<int> logfr_, vector<int> ndeg_, vector<int> jaret_,
+				   vector<int> &nu_, int ns_, int np_, double pitch_) : coorp(coorp_), coor(coor_), iper(iper_), logfr(logfr_), ndeg(ndeg_), jaret(jaret_),
+																		nu(nu_), ns(ns_), np(np_), pitch(pitch_) {}
 
 void Numerics::Solver(int Iterations)
 {
@@ -32,7 +32,7 @@ void Numerics::Solver(int Iterations)
 		funu, dfunu, funv, dfunv, funw, dfunw, dzOld, uOld,
 		vOld, wOld, zrms, zErrMax, zi2r, zi, Zexist;
 
-	int lime, lime1, kextra;
+	int lime, lime1, kextra, pboundary = 11;
 
 	ndim = 3;
 	dxi = matrix<double>(ndim, ns);
@@ -65,13 +65,17 @@ void Numerics::Solver(int Iterations)
 		{
 			if (logfr[is] != 0)
 			{
-				if (logfr[is] != 1)
+				if (logfr[is] != pboundary)
 					if (logfr[is] != 110)
-						continue;
+						if (logfr[is] != 111)
+							continue;
 			}
-			mID = is;	  // current mID node
+			mID = is; // current mID node
 
-			if (logfr[is] == 1)addpitch(mID);
+			if (logfr[is] == 1)
+				addpitch(mID, 110);
+			if (logfr[is] == 11)
+				removepitch(mID, 111);
 
 			/*
 		 Count neighbouring nodes
@@ -155,17 +159,17 @@ void Numerics::Solver(int Iterations)
 					defz = dz - zneiP;
 
 					AuTerm = AuTerm - znei * (-defx * ssv * ccw + defy * ssv * ssw + defz * ccv) -
-						ynei * (defx * ssw + defy * ccw);
+							 ynei * (defx * ssw + defy * ccw);
 					BuTerm = BuTerm + ynei * (-defx * ssv * ccw + defy * ssv * ssw + defz * ccv) -
-						znei * (defx * ssw + defy * ccw);
+							 znei * (defx * ssw + defy * ccw);
 
 					AvTerm = AvTerm - xnei * (ccw * defx - ssw * defy) - defz * (ccu * znei + ssu * ynei);
 					BvTerm = BvTerm + (ccu * znei + ssu * ynei) * (ccw * defx - ssw * defy) + xnei * defz;
 
 					AwTerm = AwTerm - (ccv * xnei + ssv * ssu * ynei + ssv * ccu * znei) * defx -
-						(ccu * ynei - ssu * znei) * defy;
+							 (ccu * ynei - ssu * znei) * defy;
 					BwTerm = BwTerm + (ccv * xnei + ssv * ssu * ynei + ssv * ccu * znei) * defy -
-						(ccu * ynei - ssu * znei) * defx;
+							 (ccu * ynei - ssu * znei) * defx;
 				}
 				/*
 					  Newton - Raphson
@@ -211,8 +215,13 @@ void Numerics::Solver(int Iterations)
 
 			if (logfr[mID] == 1)
 			{
-				removepitch(mID);
-				update_periodic_nodes(mID);
+				removepitch(mID, 110);
+				update_periodic_nodes(mID, 1, -pitch);
+			}
+			if (logfr[mID] == 11)
+			{
+				addpitch(mID, 111);
+				update_periodic_nodes(mID, 0, pitch);
 			}
 		}
 
@@ -267,6 +276,14 @@ void Numerics::Solver(int Iterations)
 			}
 		}
 
+		if (kIterOut % 1000 == 0)
+		{
+			if (pboundary == 1)
+				pboundary = 11;
+			else
+				pboundary = 1;
+		}
+
 		if (kIterOut == maxiter)
 		{
 			cout << "ENTER ADDITIONAL ITERATIONS (0=STOP)" << endl;
@@ -287,13 +304,13 @@ void Numerics::Solver(int Iterations)
 L30:;
 }
 
-void Numerics::addpitch(int nodeIed)
+void Numerics::addpitch(int nodeIed, int lgfr)
 {
 
 	for (unsigned int k = ndeg[nodeIed - 1] + 1; k <= ndeg[nodeIed]; k++)
 	{
 		inei = jaret[k];
-		if (logfr[inei] == 110)
+		if (logfr[inei] == lgfr)
 		{
 			coor[1][inei - 1] += pitch;
 			coorp[1][inei - 1] += pitch;
@@ -301,13 +318,13 @@ void Numerics::addpitch(int nodeIed)
 	}
 }
 
-void Numerics::removepitch(int nodeIed)
+void Numerics::removepitch(int nodeIed, int lgfr)
 {
 
 	for (unsigned int k = ndeg[nodeIed - 1] + 1; k <= ndeg[nodeIed]; k++)
 	{
 		inei = jaret[k];
-		if (logfr[inei] == 110)
+		if (logfr[inei] == lgfr)
 		{
 			coor[1][inei - 1] -= pitch;
 			coorp[1][inei - 1] -= pitch;
@@ -315,23 +332,27 @@ void Numerics::removepitch(int nodeIed)
 	}
 }
 
-void Numerics::update_periodic_nodes(int nodeIed)
+void Numerics::update_periodic_nodes(int nodeIed, int index, double pitch_)
 {
 	int ifriend;
 	for (int p = 0; p < 121; p++)
 	{
-		if (nodeIed == iper[1][p])
+		if (nodeIed == iper[index][p])
 		{
-			ifriend = iper[0][p];
+			if (index == 1)
+				ifriend = iper[0][p];
+			else
+				ifriend = iper[1][p];
+
 			break;
 		}
 	}
 
 	double y = coor[1][nodeIed - 1];
-	coor[1][ifriend - 1] =y - pitch;
+	coor[1][ifriend - 1] = y + pitch_;
 	coor[0][ifriend - 1] = coor[0][nodeIed - 1];
 	coorp[0][ifriend - 1] = coorp[0][nodeIed - 1];
-	coorp[1][ifriend - 1] = y - pitch;// B = A - PITCH
+	coorp[1][ifriend - 1] = y + pitch_; // B = A - PITCH
 }
 
 int Numerics::kountNeis(int nodeId)

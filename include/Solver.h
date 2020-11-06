@@ -13,7 +13,7 @@ class Numerics
 {
 public:
 	Numerics();
-	Numerics(double **coorp, double **coor, int ** iper,vector<int> &logfr, vector<int>& ndeg, vector<int>& jaret, vector<int> &nu,
+	Numerics(double **coorp, double **coor, int ** iper,vector<int> logfr, vector<int> ndeg, vector<int> jaret, vector<int> &nu,
 		int ns, int np, double pitch);
 	void Solver(int Iterations);
 	~Numerics();
@@ -36,9 +36,9 @@ private:
 	int kountNeis(int nodeID);
 	void globalToLocal(int ndim, vector<double> &cM, int nodeID);
 	void localToGlobal(int ndim, vector<double> &cM, int nodeID);
-	void addpitch(int mid);
-	void removepitch(int mid);
-	void update_periodic_nodes(int mid);
+	void addpitch(int mid, int lgfr);
+	void removepitch(int mid, int lgfr);
+	void update_periodic_nodes(int nodeIed, int index, double pitch_);
 	bool converged(double dxOld, double dyOld, double thOld,
 				   double dx, double dy, double theta);
 };

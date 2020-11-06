@@ -1,4 +1,4 @@
-#include "../include/DataStructures.h"
+#include "DataStructures.h"
 
 /*=====================================================
   =====================================================
@@ -17,8 +17,8 @@ DataStructures::DataStructures() {}
 
 //===================2D===========================//
 
-DataStructures::DataStructures(int ns_, int np_, int nq_, double **coor_,vector<int> &logfr_, vector<int> &nu_) : ns(ns_), np(np_), nq(nq_),
-nu(nu_), logfr(logfr_), coor(coor_)
+DataStructures::DataStructures(int ns_, int np_, int nq_, double **coor_, vector<int> &logfr_, vector<int> &nu_) : ns(ns_), np(np_), nq(nq_),
+																												   nu(nu_), logfr(logfr_), coor(coor_)
 {
 	listnp1.resize(maxlist + 1);
 	listnp2.resize(maxlist + 1);
@@ -468,8 +468,8 @@ void DataStructures::numsegs2D()
 	// Build NUBO APPLE segments
 	// -------------------------------
 	fjaret2D();
-	vector <int> neis;
-	int ifriend, inode, ivpseg1, ivpseg2, ifriendnei;
+	vector<int> neisUP, neisDown;
+	int ifriend, inode, ivpseg1, ivpseg2, ifriendnei, inodenei;
 	for (int ip = 0; ip < nper; ip++)
 	{
 		inode = iper[1][ip];
@@ -477,17 +477,33 @@ void DataStructures::numsegs2D()
 		for (unsigned int k = ndeg[ifriend - 1] + 1; k <= ndeg[ifriend]; k++)
 		{
 			ifriendnei = jaret[k];
-			if (logfr[ifriendnei] == 0 && logfr[ifriend] == 1){
+			if (logfr[ifriendnei] == 0 && logfr[ifriend] == 1)
+			{
 				nubo[0][nvseg + nseg] = inode;
 				nubo[1][nvseg + nseg] = ifriendnei;
 				nvseg++;
-				neis.push_back(ifriendnei);
+				neisDown.push_back(ifriendnei);
+			}
+		}
+		for (unsigned int k = ndeg[inode - 1] + 1; k <= ndeg[inode]; k++)
+		{
+			inodenei = jaret[k];
+			if (logfr[inodenei] == 0 && logfr[inode] == 1)
+			{
+				nubo[0][nvseg + nseg] = ifriend;
+				nubo[1][nvseg + nseg] = inodenei;
+				nvseg++;
+				neisUP.push_back(inodenei);
 			}
 		}
 		logfr[ifriend] = 11;
 	}
-	for (int x : neis)logfr[x] = 110;
-	neis.clear();
+	for (int x : neisDown)
+		logfr[x] = 110;
+	for (int x : neisDown)
+		logfr[x] = 111;
+	neisDown.clear();
+	neisUP.clear();
 }
 
 void DataStructures::fjaret2D()
@@ -495,10 +511,10 @@ void DataStructures::fjaret2D()
 	int inod1, inod2, kpoi_1, kpoi_2, max_str;
 	//
 	//	Jaret: Serial Storage of Jaret
-	
-	for_each(ndeg.begin(), ndeg.end(), [](int &i){ i = 0; });
-	for_each(jaret.begin(), jaret.end(), [](int &i){ i = 0; });
-	
+
+	for_each(ndeg.begin(), ndeg.end(), [](int &i) { i = 0; });
+	for_each(jaret.begin(), jaret.end(), [](int &i) { i = 0; });
+
 	//
 	//	Find # of nodes - segments around each node
 	//	ATT: Jaret also includes neighbours due to virtual segments
@@ -709,7 +725,7 @@ void DataStructures::filistn()
 
 	cout << "Nodes are listed as follows: " << endl;
 
-	for_each(listnp1.begin(), listnp1.end(), [](int i)->int{return i = 1; });
+	for_each(listnp1.begin(), listnp1.end(), [](int i) -> int { return i = 1; });
 
 	for (unsigned int ktype = 0; ktype <= 6; ktype++)
 	{
