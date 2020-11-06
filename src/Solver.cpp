@@ -1,4 +1,4 @@
-#include "Solver.h"
+#include "../include/Solver.h"
 /*=====================================================
   =====================================================
   Created by Alexandros Eskantar and
@@ -14,8 +14,9 @@
 
 Numerics::Numerics() {}
 
-Numerics::Numerics(double **coorp_, double **coor_, vector<int> logfr_, vector<int> ndeg_, vector<int> jaret_,
-				   vector<int> nu_, int ns_, int np_) : coorp(coorp_), coor(coor_), logfr(logfr_), ndeg(ndeg_), jaret(jaret_), nu(nu_), ns(ns_), np(np_) {}
+Numerics::Numerics(double **coorp_, double **coor_, int **iper_, vector<int>& logfr_, vector<int>& ndeg_, vector<int>& jaret_,
+	vector<int>& nu_, int ns_, int np_, double pitch_) : coorp(coorp_), coor(coor_), iper(iper_), logfr(logfr_), ndeg(ndeg_), jaret(jaret_),
+				   nu(nu_), ns(ns_), np(np_), pitch(pitch_) {}
 
 void Numerics::Solver(int Iterations)
 {
@@ -62,31 +63,29 @@ void Numerics::Solver(int Iterations)
 		*/
 		for (unsigned int is = 1; is <= ns; is++)
 		{
-			// if (isPeriodic(mID))
-			// {
-			// 	for (unsigned int k = ndeg[mID - 1] + 1; k <= ndeg[mID]; k++)
-			// 	{
-
-			// 		inei = jaret[k];
-			// 		coor[1][inei - 1] += pitch;
-			// 	}
-			// }
 			if (logfr[is] != 0)
-				continue; //  only internal nodes are of interest
+			{
+				if (logfr[is] != 1)
+					if (logfr[is] != 110)
+						continue;
+			}
 			mID = is;	  // current mID node
+
+			if (logfr[is] == 1)addpitch(mID);
 
 			/*
 		 Count neighbouring nodes
 		 ------------------------
-		*/
+		 */
+
 			neiTot = kountNeis(mID);
 			globalToLocal(ndim, cM, mID);
 
 			/*
 			 ========================================
-		     Compute Deformations and Rotations in 3D 
-		     ========================================
-			*/
+			 Compute Deformations and Rotations in 3D
+			 ========================================
+			 */
 			u = 0.;
 			v = 0.;
 			w = 0.;
@@ -104,9 +103,9 @@ void Numerics::Solver(int Iterations)
 				ssw = sin(w);
 
 				/*
-				      Creating R table
-				      ----------------
-				*/
+					  Creating R table
+					  ----------------
+					  */
 				R[0][0] = ccv * ccw;
 				R[0][1] = -(ccu * ssw) + (ccw * ssu * ssv);
 				R[0][2] = (ssu * ssw) + (ccu * ccw * ssv);
@@ -124,17 +123,10 @@ void Numerics::Solver(int Iterations)
 
 				for (unsigned int k = ndeg[mID - 1] + 1; k <= ndeg[mID]; k++)
 				{
-
 					inei = jaret[k];
 					sx += coorp[0][inei - 1] - R[0][0] * coor[0][inei - 1] - R[0][1] * coor[1][inei - 1] - R[0][2] * coor[2][inei - 1];
 					sy += coorp[1][inei - 1] - R[1][0] * coor[0][inei - 1] - R[1][1] * coor[1][inei - 1] - R[1][2] * coor[2][inei - 1];
 					sz += coorp[2][inei - 1] - R[2][0] * coor[0][inei - 1] - R[2][1] * coor[1][inei - 1] - R[2][2] * coor[2][inei - 1];
-					
-					// if (k == ndeg[mID]&&isUpperPeriodic(mID))
-					// {
-					// 	mID = 
-					// }
-					
 				}
 				dx = sx / double(neiTot);
 				dy = sy / double(neiTot);
@@ -163,22 +155,22 @@ void Numerics::Solver(int Iterations)
 					defz = dz - zneiP;
 
 					AuTerm = AuTerm - znei * (-defx * ssv * ccw + defy * ssv * ssw + defz * ccv) -
-							 ynei * (defx * ssw + defy * ccw);
+						ynei * (defx * ssw + defy * ccw);
 					BuTerm = BuTerm + ynei * (-defx * ssv * ccw + defy * ssv * ssw + defz * ccv) -
-							 znei * (defx * ssw + defy * ccw);
+						znei * (defx * ssw + defy * ccw);
 
 					AvTerm = AvTerm - xnei * (ccw * defx - ssw * defy) - defz * (ccu * znei + ssu * ynei);
 					BvTerm = BvTerm + (ccu * znei + ssu * ynei) * (ccw * defx - ssw * defy) + xnei * defz;
 
 					AwTerm = AwTerm - (ccv * xnei + ssv * ssu * ynei + ssv * ccu * znei) * defx -
-							 (ccu * ynei - ssu * znei) * defy;
+						(ccu * ynei - ssu * znei) * defy;
 					BwTerm = BwTerm + (ccv * xnei + ssv * ssu * ynei + ssv * ccu * znei) * defy -
-							 (ccu * ynei - ssu * znei) * defx;
+						(ccu * ynei - ssu * znei) * defx;
 				}
 				/*
-				      Newton - Raphson
- 			    	  ----------------
-				*/
+					  Newton - Raphson
+					  ----------------
+					  */
 				funu = ssu * AuTerm + ccu * BuTerm;
 				dfunu = ccu * AuTerm - ssu * BuTerm;
 				//	if (abs(dfunu < -1e+61)) break;
@@ -206,7 +198,7 @@ void Numerics::Solver(int Iterations)
 			/*
 				 Update coordinates of point M
 				 -----------------------------
-			*/
+				 */
 			coorp[0][mID - 1] = cM[0] + dx;
 			coorp[1][mID - 1] = cM[1] + dy;
 			coorp[2][mID - 1] = cM[2] + dz;
@@ -216,7 +208,14 @@ void Numerics::Solver(int Iterations)
 			------------------------------
 			*/
 			localToGlobal(ndim, cM, mID);
+
+			if (logfr[mID] == 1)
+			{
+				removepitch(mID);
+				update_periodic_nodes(mID);
+			}
 		}
+
 		xrms = 0.;
 		yrms = 0.;
 		zrms = 0.;
@@ -284,8 +283,55 @@ void Numerics::Solver(int Iterations)
 				maxiter += -1000 + kextra;
 		}
 
-	} while (kIterOut < Iterations);
+	} while (kIterOut < maxiter);
 L30:;
+}
+
+void Numerics::addpitch(int nodeIed)
+{
+
+	for (unsigned int k = ndeg[nodeIed - 1] + 1; k <= ndeg[nodeIed]; k++)
+	{
+		inei = jaret[k];
+		if (logfr[inei] == 110)
+		{
+			coor[1][inei - 1] += pitch;
+			coorp[1][inei - 1] += pitch;
+		}
+	}
+}
+
+void Numerics::removepitch(int nodeIed)
+{
+
+	for (unsigned int k = ndeg[nodeIed - 1] + 1; k <= ndeg[nodeIed]; k++)
+	{
+		inei = jaret[k];
+		if (logfr[inei] == 110)
+		{
+			coor[1][inei - 1] -= pitch;
+			coorp[1][inei - 1] -= pitch;
+		}
+	}
+}
+
+void Numerics::update_periodic_nodes(int nodeIed)
+{
+	int ifriend;
+	for (int p = 0; p < 121; p++)
+	{
+		if (nodeIed == iper[1][p])
+		{
+			ifriend = iper[0][p];
+			break;
+		}
+	}
+
+	double y = coor[1][nodeIed - 1];
+	coor[1][ifriend - 1] =y - pitch;
+	coor[0][ifriend - 1] = coor[0][nodeIed - 1];
+	coorp[0][ifriend - 1] = coorp[0][nodeIed - 1];
+	coorp[1][ifriend - 1] = y - pitch;// B = A - PITCH
 }
 
 int Numerics::kountNeis(int nodeId)
@@ -338,11 +384,6 @@ void Numerics::localToGlobal(int ndim, vector<double> &cM, int nodeID)
 	}
 }
 
-bool Numerics::isPeriodic(int mID)
-{
-
-	return logfr[mID] == 666;
-}
 bool Numerics::converged(double dxOld, double dyOld, double thOld, double dx, double dy, double theta)
 {
 

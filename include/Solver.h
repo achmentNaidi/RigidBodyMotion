@@ -13,8 +13,8 @@ class Numerics
 {
 public:
 	Numerics();
-	Numerics(double **coorp, double **coor, vector<int> logfr, vector<int> ndeg, vector<int> jaret, vector<int> nu,
-			 int ns, int np);
+	Numerics(double **coorp, double **coor, int ** iper,vector<int> &logfr, vector<int>& ndeg, vector<int>& jaret, vector<int> &nu,
+		int ns, int np, double pitch);
 	void Solver(int Iterations);
 	~Numerics();
 
@@ -22,11 +22,12 @@ private:
 	//	----------------------------//
 	/**/ double **dxi, **coorp, **coor;		 /**/
 	/**/ vector<int> logfr, ndeg, jaret, nu; /**/
-	/**/ vector<double> cM;					 /**/
+	/**/ vector<double> cM;		
+	/**/ int **iper;
 	//	----------------------------//
 
 	int ndim, ns, np, mID, neiTot, iter, inei;
-	double theta, cc, ss, sx, sy, dx, dy;
+	double theta, cc, ss, sx, sy, dx, dy, pitch;
 	double aTerm, bTerm, xnei, ynei, xneiP, yneiP,
 		xrms, yrms, xErrMax, yErrMax, xi, yi, xi2r, yi2r;
 	double fun, dfun, dxOld, dyOld, thOld;
@@ -35,7 +36,9 @@ private:
 	int kountNeis(int nodeID);
 	void globalToLocal(int ndim, vector<double> &cM, int nodeID);
 	void localToGlobal(int ndim, vector<double> &cM, int nodeID);
+	void addpitch(int mid);
+	void removepitch(int mid);
+	void update_periodic_nodes(int mid);
 	bool converged(double dxOld, double dyOld, double thOld,
 				   double dx, double dy, double theta);
-	bool isPeriodic(int mID);
 };

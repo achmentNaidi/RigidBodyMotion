@@ -1,10 +1,10 @@
 #include <iostream>
 #include <math.h>
-#include "DataStructures.h"
-#include "ioGrid.h"
-#include "qualityCheck.h"
-#include "Solver.h"
-#include "geomHandle.h"
+#include "../include/DataStructures.h"
+#include "../include/ioGrid.h"
+#include "../include/qualityCheck.h"
+#include "../include/Solver.h"
+#include "../include/geomHandle.h"
 
 using namespace std;
 int main()
@@ -26,9 +26,9 @@ int main()
 
 		string filename = "siev";
 		// 2. READ INITIAL MESH
-		// ionGrid.readInitialMesh("siev.ele", "siev.nod");
+
 		ionGrid.read(filename);
-		// ginfo_un = ionGrid.getInfo2D_Unstructured();
+
 		gInfo = ionGrid.getInfo();
 
 		// 3. INITIAL MESH QUALITY CHECK
@@ -37,21 +37,21 @@ int main()
 
 		// 4. MOVE GEOMETRY'S BOUNDARY
 		ionGrid.readDeformed2D_Unstructured(filename);
-		// gInfo = ionGrid.getInfo2D_Unstructured();
+	
 		gInfo = ionGrid.getInfo();
 
 		// 5. CREATE DATA STRUCTURE OF UNSTRUCTURED GRID
-		DataStructures dataStructure2D(gInfo.ns, gInfo.np, gInfo.nq,gInfo.coor, gInfo.logfr,gInfo.nu);
+		DataStructures dataStructure2D(gInfo.ns, gInfo.np, gInfo.nq, gInfo.coor, gInfo.logfr, gInfo.nu);
 		dataStructure2D.Create2D();
-		// gInfo = ionGrid.getInfo2D_Unstructured();
+
 		gInfo = ionGrid.getInfo();
 
 		// 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
 		// Numerics newtonRaphson2D(ginfo_un.coorp, ginfo_un.coor, ginfo_un.logfr, dataStructure2D.get_ndeg(),
 		// 	dataStructure2D.get_jaret(), ginfo_un.nu, ginfo_un.ns, ginfo_un.np);
 
-		Numerics newtonRaphson2D(gInfo.coorp, gInfo.coor, gInfo.logfr, dataStructure2D.get_ndeg(),
-								 dataStructure2D.get_jaret(), gInfo.nu, gInfo.ns, gInfo.np);
+		Numerics newtonRaphson2D(gInfo.coorp, gInfo.coor, dataStructure2D.get_iper(), dataStructure2D.get_logfr(), dataStructure2D.get_ndeg(),
+			dataStructure2D.get_jaret(), gInfo.nu, gInfo.ns, gInfo.np, dataStructure2D.get_pitch());
 
 		newtonRaphson2D.Solver(3000);
 		// gInfo = ionGrid.getInfo2D_Unstructured();
@@ -61,7 +61,7 @@ int main()
 		gQuality.meshQuality2D(gInfo.coorp, gInfo.nu);
 
 		// 8. WRITE new.nod file
-		ionGrid.write_mesh(dim, gInfo.coorp, gInfo.coor, gInfo.logfr, gInfo.ns, "new.nod");
+		ionGrid.write_mesh(dim, gInfo.coorp, gInfo.coor, gInfo.logfr, gInfo.ns, "siev.nod");
 		break;
 	}
 	case 3:
@@ -96,8 +96,8 @@ int main()
 		//Mesh3D.coorp = GeometryHandle.wingTorsionBending(0.05); // alpha = 0.05
 
 		// 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
-		Numerics NewtonRaphson3D(Mesh3D.coorp, Mesh3D.coor, Mesh3D.logfr, DS3D.get_ndeg(), DS3D.get_jaret(),
-								 Mesh3D.nu, Mesh3D.ns, 0);
+		Numerics NewtonRaphson3D(Mesh3D.coorp, Mesh3D.coor, DS3D.get_iper(), Mesh3D.logfr, DS3D.get_ndeg(), DS3D.get_jaret(),
+			Mesh3D.nu, Mesh3D.ns, 0, DS3D.get_pitch());
 
 		NewtonRaphson3D.Solver(3000);
 

@@ -3,6 +3,7 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
 #include "DataStructures.h"
 #include <iomanip>
 #include <string>
@@ -47,5 +48,6 @@ private:
 	string fileName;
 	map<string, patch> patces;
 	gridInfo2D_Structured gInfo_st;
+
 	gridInfo gInfo;
 };

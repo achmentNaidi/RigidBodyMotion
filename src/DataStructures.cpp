@@ -1,4 +1,4 @@
-#include "DataStructures.h"
+#include "../include/DataStructures.h"
 
 /*=====================================================
   =====================================================
@@ -17,7 +17,8 @@ DataStructures::DataStructures() {}
 
 //===================2D===========================//
 
-DataStructures::DataStructures(int ns_, int np_, int nq_, double **coor_, vector<int> &logfr_, vector<int> &nu_) : logfr(logfr_), coor(coor_), ns(ns_), np(np_), nq(nq_), nu(nu_)
+DataStructures::DataStructures(int ns_, int np_, int nq_, double **coor_,vector<int> &logfr_, vector<int> &nu_) : ns(ns_), np(np_), nq(nq_),
+nu(nu_), logfr(logfr_), coor(coor_)
 {
 	listnp1.resize(maxlist + 1);
 	listnp2.resize(maxlist + 1);
@@ -25,9 +26,6 @@ DataStructures::DataStructures(int ns_, int np_, int nq_, double **coor_, vector
 
 void DataStructures::Create2D()
 {
-	filistn();
-	setperio();
-
 	if (np + nq > maxpyr)
 	{
 		cout << "geom2d: Increase maxpyr at DataStructures.h" << endl;
@@ -41,6 +39,9 @@ void DataStructures::Create2D()
 	//	--------------------------------------------------
 	//	Numerate the segments(nubo, nusg, ibsg2tr)
 	//	 -------------------------------------------------
+	filistn();
+	setperio();
+
 	numsegs2D(); // provisionally uses jaret, ndeg
 	cout << "numsegs completed...." << endl;
 	fjaret2D();
@@ -110,13 +111,6 @@ void DataStructures::numsegs2D()
 			ndeg[is] = ndeg[is] + 1;
 		}
 	}
-
-	for (auto p : periodic_pairs)
-	{
-		logfr[p.first] = 0;
-		logfr[p.second] = 666;
-	}
-
 	for (int i = np + 1; i <= np + nq; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -470,8 +464,30 @@ void DataStructures::numsegs2D()
 		ind = ind + 4;
 		nvseg = nvseg + 2;
 	}
-	int dum2;
-	dum2 = 1;
+
+	// Build NUBO APPLE segments
+	// -------------------------------
+	fjaret2D();
+	vector <int> neis;
+	int ifriend, inode, ivpseg1, ivpseg2, ifriendnei;
+	for (int ip = 0; ip < nper; ip++)
+	{
+		inode = iper[1][ip];
+		ifriend = iper[0][ip];
+		for (unsigned int k = ndeg[ifriend - 1] + 1; k <= ndeg[ifriend]; k++)
+		{
+			ifriendnei = jaret[k];
+			if (logfr[ifriendnei] == 0 && logfr[ifriend] == 1){
+				nubo[0][nvseg + nseg] = inode;
+				nubo[1][nvseg + nseg] = ifriendnei;
+				nvseg++;
+				neis.push_back(ifriendnei);
+			}
+		}
+		logfr[ifriend] = 11;
+	}
+	for (int x : neis)logfr[x] = 110;
+	neis.clear();
 }
 
 void DataStructures::fjaret2D()
@@ -479,17 +495,14 @@ void DataStructures::fjaret2D()
 	int inod1, inod2, kpoi_1, kpoi_2, max_str;
 	//
 	//	Jaret: Serial Storage of Jaret
-	for (int i = 0; i <= ns; i++)
-	{
-		ndeg[i] = 0;
-	}
-	for (int i = 0; i < nvmaxall; i++)
-	{
-		jaret[i] = 0;
-	}
+	
+	for_each(ndeg.begin(), ndeg.end(), [](int &i){ i = 0; });
+	for_each(jaret.begin(), jaret.end(), [](int &i){ i = 0; });
+	
 	//
 	//	Find # of nodes - segments around each node
 	//	ATT: Jaret also includes neighbours due to virtual segments
+
 	for (int iseg = 0; iseg < nseg + nvseg; iseg++)
 	{
 		inod1 = nubo[0][iseg];
@@ -503,7 +516,6 @@ void DataStructures::fjaret2D()
 		ndeg[k] = ndeg[k - 1] + ndeg[k]; // build index
 		jaret[ndeg[k]] = ndeg[k - 1];	 // provisory
 	}
-	
 	//
 	// Calculate Max Length of Jaret(String), Only Node Storing
 	for (int iseg = 0; iseg < nseg + nvseg; iseg++)
@@ -608,15 +620,6 @@ void DataStructures::Create3D()
 	!     Numerate the segments (nusg, jaret, ndeg, nubo)
 	!     -----------------------------------------------
 	*/
-	numsegs3D();
-	cout << " numsegs completed...." << endl;
-
-	/*
-	--------------------------------------------------
-	!     Find pairs of periodic segments (ipersg)
-	!     --------------------------------------------------
-	*/
-
 	if (nper > 0)
 	{
 		perseg();
@@ -630,6 +633,15 @@ void DataStructures::Create3D()
 	*/
 
 	calvnocl();
+	numsegs3D();
+	cout << " numsegs completed...." << endl;
+
+	/*
+	--------------------------------------------------
+	!     Find pairs of periodic segments (ipersg)
+	!     --------------------------------------------------
+	*/
+
 	cout << " calvnocl completed...." << endl;
 
 	/*
@@ -697,7 +709,7 @@ void DataStructures::filistn()
 
 	cout << "Nodes are listed as follows: " << endl;
 
-	for_each(begin(listnp1), end(listnp1), [](int &i) -> int { return i = 1; });
+	for_each(listnp1.begin(), listnp1.end(), [](int i)->int{return i = 1; });
 
 	for (unsigned int ktype = 0; ktype <= 6; ktype++)
 	{
@@ -781,7 +793,8 @@ void DataStructures::setPeriodicityConstants(int mpar_, int kaxial_, int isperip
 
 void DataStructures::setperio()
 {
-	double dxx, dzz, ds;
+
+	double dyy, dzz, ds;
 	int is, js;
 	nper = 0;	//default: no periodic pairs
 	pitch = 0.; // default: zero pitch
@@ -792,15 +805,15 @@ void DataStructures::setperio()
 	} // exit if no periodic nodes
 
 	int nper_exp = (listnp2[1] - listnp1[1] + 1) / 2;
-	periodic_pairs.resize(nper_exp);
+
 	iper = matrix<int>(2, nper_exp);
 
-	if (kaxial != 3)
+	/*if (kaxial != 3)
 	{
 		cout << "KAXIAL not eq to 3 in peripheral case" << endl;
 		cout << "It will be adjusted accordingly" << endl;
 		kaxial = 3;
-	}
+	}*/
 
 	// "Angles" used in peripheral cascade are taken on default values
 
@@ -830,20 +843,19 @@ void DataStructures::setperio()
 			{
 				continue;
 			}
-			dxx = abs(coor[0][is - 1] - coor[0][js - 1]);
+			dyy = abs(coor[0][is - 1] - coor[0][js - 1]);
 			dzz = abs(coor[2][is - 1] - coor[2][js - 1]);
-			if (dxx < eps && dzz < eps)
+			if (dyy < eps && dzz < eps)
 			{
 				listn[idum1] = -listn[idum1];
-				iper[0][nper] = is;
-				iper[1][nper] = js;
-				periodic_pairs[nper] = {is, js};
 				nper++;
-				goto LINE837;
+				iper[0][nper - 1] = is;
+				iper[1][nper - 1] = js;
+				goto Line10;
 			}
 		}
 		cout << "Warning: No pair found for node " << is << ", " << coor[0][is - 1] << endl;
-	LINE837:;
+	Line10:;
 	}
 	// If sequential run (not a slave) all LOGFR=1 nodes should be matched
 
@@ -855,26 +867,27 @@ void DataStructures::setperio()
 	}
 
 	// Reorder IPER so as IPER(1) be the node with min_X
-	// 2d - Reorder pairs with max_Y first
 
 	double dsmax = -9.e28;
 	double dsmin = 9.e28;
-	int temp;
-	for (auto &pair : periodic_pairs)
+
+	for (unsigned int kper = 0; kper < nper; kper++)
 	{
-		if (coor[1][pair.first - 1] < coor[1][pair.second - 1])
+		is = iper[0][kper];
+		js = iper[1][kper];
+		if (coor[1][is - 1] > coor[1][js - 1])
 		{
-			temp = pair.first;
-			pair.first = pair.second;
-			pair.second = temp;
+			iper[0][kper] = js;
+			iper[1][kper] = is;
+			is = iper[0][kper]; // renew is,js for ds
+			js = iper[1][kper];
 		}
-		ds = coor[1][pair.first - 1] - coor[1][pair.second - 1];
+		ds = coor[1][js - 1] - coor[1][is - 1];
 		if (ds > dsmax)
 			dsmax = ds;
 		if (ds < dsmin)
 			dsmin = ds;
 	}
-
 	if (dsmax * dsmin < 0. && nper > 0)
 	{
 		cout << " Wrong Orientation in SETPERIO" << endl;
@@ -891,6 +904,7 @@ void DataStructures::setperio()
 	{
 		pitch = 0.5 * (dsmin + dsmax);
 	}
+	pitch = pitch;
 	return;
 }
 
@@ -3591,12 +3605,6 @@ void DataStructures::fjaret_el()
 		}
 	}
 
-	// for (auto p : periodic_pairs)
-	// {
-	// 	if (is == p.first)
-	// 	{
-	// 		ndeg[is]++;
-	// 	}
 	// Sweep Pyramids
 	for (unsigned int i = ntet + 1; i <= ntet + npyr; i++)
 	{

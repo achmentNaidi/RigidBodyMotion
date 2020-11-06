@@ -4,8 +4,6 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
-#include <functional>
-#include <numeric>
 #include "qualityCheck.h"
 
 using namespace std;
@@ -32,7 +30,7 @@ class DataStructures
 {
 public:
 	DataStructures();
-	DataStructures(int ns_, int np_, int nq_, double **coor_, vector<int> &logfr_, vector<int> &nu_);
+	DataStructures(int ns, int np, int nq, double **coor_, vector<int> &logfr_, vector<int> &nu);
 	DataStructures(vector<int> &logfr_, int ns_, double **coor_, int ntet,
 				   int npyr, int npri, int nhex, int nall, vector<int> &nu);
 	void Create2D();
@@ -41,8 +39,10 @@ public:
 	void setPeriodicityConstants(int mpar, int kaxial, int isperiph);
 	vector<int> get_ndeg() { return ndeg; }
 	vector<int> get_jaret() { return jaret; }
-	vector<pair<int,int>> get_periodic_pairs() { return periodic_pairs; }
 	int get_nbseg() { return nbseg; }
+	vector <int> get_logfr() { return logfr; }
+	double get_pitch() { return pitch; }
+	int ** get_iper() { return iper; }
 
 	~DataStructures();
 
@@ -63,7 +63,6 @@ private:
 
 	vector<int> logfr, nu, nusg, ndeg, listn, listbf;
 	int **iper, **ipersg;
-	vector<pair<int, int>> periodic_pairs;
 
 	// INTEGER ARRAYS
 
@@ -104,10 +103,6 @@ private:
 	void fjaret_el();
 	void matrix_mult(int nvar, double **xx, double **yy, double **zz, int mvar1, int mvar2, int mvar3);
 	void rotation_matrix(int nvar, int iop, double cm, double sm, double **rra, double **rrb);
-	bool checkOrder(pair<int, int> &p)
-	{
-		return coor[1][p.first] < coor[1][p.second];
-	}
 };
 
 template <class myType>

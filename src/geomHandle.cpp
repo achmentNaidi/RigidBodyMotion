@@ -1,5 +1,5 @@
-#include "geomHandle.h"
-#include "DataStructures.h"
+#include "../include/geomHandle.h"
+#include "../include/DataStructures.h"
 
 geomHandle::geomHandle(double **coor_, vector<int> logfr_, int ns_)
     : coor(coor_), logfr(logfr_), ns(ns_) {}

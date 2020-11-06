@@ -1,4 +1,4 @@
-#include "ioGrid.h"
+#include "../include/ioGrid.h"
 
 /*=====================================================
   =====================================================
@@ -30,7 +30,7 @@ void ioGrids::readDeformed2D_Unstructured(string defFile)
 
 	gInfo.coorp = matrix<double>(3, gInfo.ns);
 	//Read.def file
-	def.open("input_data/" + defFile + ".def");
+	def.open("../input_data/" + defFile + ".def");
 	def >> ns2;
 	if (gInfo.ns != ns2)
 	{
@@ -60,7 +60,7 @@ void ioGrids::read(string name)
 {
 	ostringstream fileName;
 
-	fileName << "input_data/" + name;
+	fileName << "../input_data/" + name;
 	// >> .nod file (allocations)
 	///////////////////////////////////////////////////////////////
 
@@ -330,27 +330,27 @@ void ioGrids::read(string name)
 void ioGrids::write_mesh(int ndim, double **coorp, double **coor, vector<int> &logfr, int ns, string gridName)
 {
 	std::ofstream nod;
-	nod.open("output_data/" + gridName);
-	/*nod << ns << endl;
+	nod.open("../output_data/" + gridName);
+	nod << ns << endl;
 	for (int i = 1; i <= ns; i++) { nod << logfr[i] << " "; }
 	nod << endl;
 	for (size_t i = 0; i < ndim; i++)
 	{
 		for (int j = 0; j < ns; j++) { nod << coorp[i][j] << " "; }
 		nod << endl;
-	}*/
-
-	for (int i = 0; i < ns; i++)
-	{
-		nod << coorp[0][i] << "	" << coorp[1][i] << coorp[2][i] << endl;
 	}
-	nod.close();
+
+	/*for (int i = 0; i < ns; i++)
+	{
+		nod << coorp[0][i] << "	" << coorp[1][i] << " " << coorp[2][i] << endl;
+	}
+	nod.close();*/
 }
 
 void ioGrids::write_Un3D(double **coorp, string name)
 {
 	std::ofstream grid;
-	grid.open("output_data/" + name);
+	grid.open("../output_data/" + name);
 	grid << endl
 		 << endl;
 	grid << gInfo.ntet << endl;
@@ -399,7 +399,7 @@ void ioGrids::vtk_graphics_3D_unstr(double **coorp)
 	// }
 
 	ofstream vtk;
-	vtk.open("output_data/out3D_unstr.vtk");
+	vtk.open("../output_data/out3D_unstr.vtk");
 
 	vtk << "# vtk DataFile Version 3.1" << endl;
 	vtk << fileName << endl;
@@ -459,7 +459,7 @@ void ioGrids::Stop(string message)
 bool ioGrids::readPatches(string filename)
 {
 	ifstream patch;
-	filename = "input_data/" + filename;
+	filename = "../input_data/" + filename;
 	patch.open(filename);
 
 	bool foundPatch = false;
@@ -480,7 +480,7 @@ void ioGrids::readPatchesFile(string filename)
 	string line, patchName;
 
 	ifstream file;
-	filename = "input_data/" + filename + ".patch";
+	filename = "../input_data/" + filename + ".patch";
 	file.open(filename);
 
 	file >> nbPatches;
