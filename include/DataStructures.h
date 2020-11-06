@@ -4,6 +4,8 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <functional>
+#include <numeric>
 #include "qualityCheck.h"
 
 using namespace std;
@@ -39,6 +41,7 @@ public:
 	void setPeriodicityConstants(int mpar, int kaxial, int isperiph);
 	vector<int> get_ndeg() { return ndeg; }
 	vector<int> get_jaret() { return jaret; }
+	vector<pair<int,int>> get_periodic_pairs() { return periodic_pairs; }
 	int get_nbseg() { return nbseg; }
 
 	~DataStructures();
@@ -60,6 +63,7 @@ private:
 
 	vector<int> logfr, nu, nusg, ndeg, listn, listbf;
 	int **iper, **ipersg;
+	vector<pair<int, int>> periodic_pairs;
 
 	// INTEGER ARRAYS
 
@@ -100,6 +104,10 @@ private:
 	void fjaret_el();
 	void matrix_mult(int nvar, double **xx, double **yy, double **zz, int mvar1, int mvar2, int mvar3);
 	void rotation_matrix(int nvar, int iop, double cm, double sm, double **rra, double **rrb);
+	bool checkOrder(pair<int, int> &p)
+	{
+		return coor[1][p.first] < coor[1][p.second];
+	}
 };
 
 template <class myType>

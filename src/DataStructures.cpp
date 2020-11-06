@@ -110,6 +110,13 @@ void DataStructures::numsegs2D()
 			ndeg[is] = ndeg[is] + 1;
 		}
 	}
+
+	for (auto p : periodic_pairs)
+	{
+		logfr[p.first] = 0;
+		logfr[p.second] = 666;
+	}
+
 	for (int i = np + 1; i <= np + nq; i++)
 	{
 		for (int j = 0; j < 4; j++)
@@ -496,6 +503,7 @@ void DataStructures::fjaret2D()
 		ndeg[k] = ndeg[k - 1] + ndeg[k]; // build index
 		jaret[ndeg[k]] = ndeg[k - 1];	 // provisory
 	}
+	
 	//
 	// Calculate Max Length of Jaret(String), Only Node Storing
 	for (int iseg = 0; iseg < nseg + nvseg; iseg++)
@@ -773,8 +781,7 @@ void DataStructures::setPeriodicityConstants(int mpar_, int kaxial_, int isperip
 
 void DataStructures::setperio()
 {
-
-	double dyy, dzz, ds;
+	double dxx, dzz, ds;
 	int is, js;
 	nper = 0;	//default: no periodic pairs
 	pitch = 0.; // default: zero pitch
@@ -785,7 +792,7 @@ void DataStructures::setperio()
 	} // exit if no periodic nodes
 
 	int nper_exp = (listnp2[1] - listnp1[1] + 1) / 2;
-
+	periodic_pairs.resize(nper_exp);
 	iper = matrix<int>(2, nper_exp);
 
 	if (kaxial != 3)
@@ -823,14 +830,15 @@ void DataStructures::setperio()
 			{
 				continue;
 			}
-			dyy = abs(coor[0][is - 1] - coor[0][js - 1]);
+			dxx = abs(coor[0][is - 1] - coor[0][js - 1]);
 			dzz = abs(coor[2][is - 1] - coor[2][js - 1]);
-			if (dyy < eps && dzz < eps)
+			if (dxx < eps && dzz < eps)
 			{
 				listn[idum1] = -listn[idum1];
+				iper[0][nper] = is;
+				iper[1][nper] = js;
+				periodic_pairs[nper] = {is, js};
 				nper++;
-				iper[0][nper - 1] = is;
-				iper[1][nper - 1] = js;
 				goto LINE837;
 			}
 		}
@@ -847,27 +855,26 @@ void DataStructures::setperio()
 	}
 
 	// Reorder IPER so as IPER(1) be the node with min_X
+	// 2d - Reorder pairs with max_Y first
 
 	double dsmax = -9.e28;
 	double dsmin = 9.e28;
-
-	for (unsigned int kper = 0; kper < nper; kper++)
+	int temp;
+	for (auto &pair : periodic_pairs)
 	{
-		is = iper[0][kper];
-		js = iper[1][kper];
-		if (coor[1][is - 1] > coor[1][js - 1])
+		if (coor[1][pair.first - 1] < coor[1][pair.second - 1])
 		{
-			iper[0][kper] = js;
-			iper[1][kper] = is;
-			is = iper[0][kper]; // renew is,js for ds
-			js = iper[1][kper];
+			temp = pair.first;
+			pair.first = pair.second;
+			pair.second = temp;
 		}
-		ds = coor[1][js - 1] - coor[1][is - 1];
+		ds = coor[1][pair.first - 1] - coor[1][pair.second - 1];
 		if (ds > dsmax)
 			dsmax = ds;
 		if (ds < dsmin)
 			dsmin = ds;
 	}
+
 	if (dsmax * dsmin < 0. && nper > 0)
 	{
 		cout << " Wrong Orientation in SETPERIO" << endl;
@@ -3584,6 +3591,12 @@ void DataStructures::fjaret_el()
 		}
 	}
 
+	// for (auto p : periodic_pairs)
+	// {
+	// 	if (is == p.first)
+	// 	{
+	// 		ndeg[is]++;
+	// 	}
 	// Sweep Pyramids
 	for (unsigned int i = ntet + 1; i <= ntet + npyr; i++)
 	{

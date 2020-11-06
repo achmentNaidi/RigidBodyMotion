@@ -62,6 +62,15 @@ void Numerics::Solver(int Iterations)
 		*/
 		for (unsigned int is = 1; is <= ns; is++)
 		{
+			// if (isPeriodic(mID))
+			// {
+			// 	for (unsigned int k = ndeg[mID - 1] + 1; k <= ndeg[mID]; k++)
+			// 	{
+
+			// 		inei = jaret[k];
+			// 		coor[1][inei - 1] += pitch;
+			// 	}
+			// }
 			if (logfr[is] != 0)
 				continue; //  only internal nodes are of interest
 			mID = is;	  // current mID node
@@ -115,10 +124,17 @@ void Numerics::Solver(int Iterations)
 
 				for (unsigned int k = ndeg[mID - 1] + 1; k <= ndeg[mID]; k++)
 				{
+
 					inei = jaret[k];
 					sx += coorp[0][inei - 1] - R[0][0] * coor[0][inei - 1] - R[0][1] * coor[1][inei - 1] - R[0][2] * coor[2][inei - 1];
 					sy += coorp[1][inei - 1] - R[1][0] * coor[0][inei - 1] - R[1][1] * coor[1][inei - 1] - R[1][2] * coor[2][inei - 1];
 					sz += coorp[2][inei - 1] - R[2][0] * coor[0][inei - 1] - R[2][1] * coor[1][inei - 1] - R[2][2] * coor[2][inei - 1];
+					
+					// if (k == ndeg[mID]&&isUpperPeriodic(mID))
+					// {
+					// 	mID = 
+					// }
+					
 				}
 				dx = sx / double(neiTot);
 				dy = sy / double(neiTot);
@@ -322,6 +338,11 @@ void Numerics::localToGlobal(int ndim, vector<double> &cM, int nodeID)
 	}
 }
 
+bool Numerics::isPeriodic(int mID)
+{
+
+	return logfr[mID] == 666;
+}
 bool Numerics::converged(double dxOld, double dyOld, double thOld, double dx, double dy, double theta)
 {
 

@@ -37,4 +37,5 @@ private:
 	void localToGlobal(int ndim, vector<double> &cM, int nodeID);
 	bool converged(double dxOld, double dyOld, double thOld,
 				   double dx, double dy, double theta);
+	bool isPeriodic(int mID);
 };
