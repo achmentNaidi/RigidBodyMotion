@@ -32,6 +32,7 @@ public:
 	void write_mesh(int ndim, double **coorp, double **coor, vector<int> &logfr, int ns, string gridName);
 	void write_Un3D(double **coorp, string name);
 	void vtk_graphics_3D_unstr(double **coorp);
+	void vtk_graphics_2D_unstr(double **coorp);
 	void Stop(string message, string file, int line);
 	void Stop(string message);
 	bool readPatches(string filename);

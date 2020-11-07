@@ -63,6 +63,7 @@ int main()
 		// 8. WRITE new.nod file
 		ionGrid.write_mesh(dim, gInfo.coorp, gInfo.coor, gInfo.logfr, gInfo.ns, "siev.nod");
 		ionGrid.write_Un3D(gInfo.coorp, "sievGnu.dat");
+		ionGrid.vtk_graphics_2D_unstr(gInfo.coorp);
 		break;
 	}
 	case 3:

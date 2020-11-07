@@ -32,7 +32,7 @@ void Numerics::Solver(int Iterations)
 		funu, dfunu, funv, dfunv, funw, dfunw, dzOld, uOld,
 		vOld, wOld, zrms, zErrMax, zi2r, zi, Zexist;
 
-	int lime, lime1, kextra, pboundary = 11;
+	int lime, lime1, kextra, pboundary = 1;
 
 	ndim = 3;
 	dxi = matrix<double>(ndim, ns);

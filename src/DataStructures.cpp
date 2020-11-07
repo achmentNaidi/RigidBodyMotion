@@ -496,11 +496,13 @@ void DataStructures::numsegs2D()
 				neisUP.push_back(inodenei);
 			}
 		}
-		logfr[ifriend] = 11;
+
+		if (logfr[ifriend] == 1)
+			logfr[ifriend] = 11;
 	}
 	for (int x : neisDown)
 		logfr[x] = 110;
-	for (int x : neisDown)
+	for (int x : neisUP)
 		logfr[x] = 111;
 	neisDown.clear();
 	neisUP.clear();

@@ -332,11 +332,17 @@ void ioGrids::write_mesh(int ndim, double **coorp, double **coor, vector<int> &l
 	std::ofstream nod;
 	nod.open("output_data/" + gridName);
 	nod << ns << endl;
-	for (int i = 1; i <= ns; i++) { nod << logfr[i] << " "; }
+	for (int i = 1; i <= ns; i++)
+	{
+		nod << logfr[i] << " ";
+	}
 	nod << endl;
 	for (size_t i = 0; i < ndim; i++)
 	{
-		for (int j = 0; j < ns; j++) { nod << coorp[i][j] << " "; }
+		for (int j = 0; j < ns; j++)
+		{
+			nod << coorp[i][j] << " ";
+		}
 		nod << endl;
 	}
 
@@ -439,6 +445,75 @@ void ioGrids::vtk_graphics_3D_unstr(double **coorp)
 
 	vtk << "CELL_TYPES " << gInfo.ntet << endl;
 	for (int i = 0; i < gInfo.ntet; i++)
+	{
+		vtk << ntype1 << endl;
+	}
+}
+
+void ioGrids::vtk_graphics_2D_unstr(double **coorp)
+{
+	const int ln = 1e6;
+	int np, npop, ns, nt;
+	// vector<int> nds, nelem;
+	// vector<double> x, y, z;
+	// string line;
+	cout << "-------------------------------------" << endl;
+	cout << "Writing VTK file..." << endl;
+	// cin >> fileName;
+	// ifstream inData;
+	// inData.open("output_data/" + fileName);
+	// getline(inData, line);
+	// getline(inData, line);
+	// inData >> ntet;
+	// inData >> ns;
+	if (gInfo.ns > ln)
+	{
+		cout << "INCREASE L" << endl;
+		exit;
+	}
+	cout << "DIMENSIONS : [ Total Nodes " << gInfo.ns << " ]" << endl;
+	cout << "-------------------------------------" << endl;
+	// x.resize(ns);
+	// y.resize(ns);
+	// z.resize(ns);
+	// nds.resize(ns);
+	npop = 4 * np;
+	// nelem.resize(npop);
+
+	// for (int i = 0; i < ns; i++)
+	// {
+	// 	inData >> x[i] >> y[i] >> z[i];
+	// }
+
+	ofstream vtk;
+	vtk.open("output_data/out2D_unstr.vtk");
+
+	vtk << "# vtk DataFile Version 3.1" << endl;
+	vtk << "vtk output" << endl;
+	vtk << "ASCII" << endl;
+	vtk << "DATASET UNSTRUCTURED_GRID" << endl;
+	vtk << "POINTS " << gInfo.ns << " DOUBLE" << endl;
+
+	for (int i = 0; i < gInfo.ns; i++)
+	{
+		vtk << setprecision(9) << coorp[0][i] << "		" << coorp[1][i] << " " << coorp[2][i] << endl;
+	}
+
+	int nsize = 4 * gInfo.np;
+	int nnum1 = 3;
+	int ntype1 = 5;
+	vtk << "CELLS " << gInfo.np << " " << nsize << endl;
+
+	int kounter = 1;
+	for (int i = 0; i < gInfo.np; i++)
+	{
+		vtk << nnum1 << " " << gInfo.nu[kounter] - 1 << " " << gInfo.nu[kounter + 1] - 1
+			<< " " << gInfo.nu[kounter + 2] - 1 << endl;
+		kounter += 3;
+	}
+
+	vtk << "CELL_TYPES " << gInfo.np << endl;
+	for (int i = 0; i < gInfo.np; i++)
 	{
 		vtk << ntype1 << endl;
 	}
