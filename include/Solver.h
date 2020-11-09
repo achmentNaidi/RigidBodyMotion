@@ -38,7 +38,7 @@ private:
 	void localToGlobal(int ndim, vector<double> &cM, int nodeID);
 	void addpitch(int mid, int lgfr);
 	void removepitch(int mid, int lgfr);
-	void update_periodic_nodes(int nodeIed, int index, double pitch_);
+	void update_periodic_nodes();
 	bool converged(double dxOld, double dyOld, double thOld,
 				   double dx, double dy, double theta);
 };

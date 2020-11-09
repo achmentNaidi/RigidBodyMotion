@@ -65,10 +65,11 @@ void Numerics::Solver(int Iterations)
 		{
 			if (logfr[is] != 0)
 			{
-				if (logfr[is] != pboundary)
-					if (logfr[is] != 110)
-						if (logfr[is] != 111)
-							continue;
+				if (logfr[is] != 1)
+					if (logfr[is] != 11)
+						if (logfr[is] != 110)
+							if (logfr[is] != 111)
+								continue;
 			}
 			mID = is; // current mID node
 
@@ -216,14 +217,15 @@ void Numerics::Solver(int Iterations)
 			if (logfr[mID] == 1)
 			{
 				removepitch(mID, 110);
-				update_periodic_nodes(mID, 1, -pitch);
+				// update_periodic_nodes(mID, 1, -pitch);
 			}
 			if (logfr[mID] == 11)
 			{
 				addpitch(mID, 111);
-				update_periodic_nodes(mID, 0, pitch);
+				// update_periodic_nodes(mID, 0, pitch);
 			}
 		}
+		update_periodic_nodes();
 
 		xrms = 0.;
 		yrms = 0.;
@@ -276,14 +278,6 @@ void Numerics::Solver(int Iterations)
 			}
 		}
 
-		if (kIterOut % 1000 == 0)
-		{
-			if (pboundary == 1)
-				pboundary = 11;
-			else
-				pboundary = 1;
-		}
-
 		if (kIterOut == maxiter)
 		{
 			cout << "ENTER ADDITIONAL ITERATIONS (0=STOP)" << endl;
@@ -332,27 +326,19 @@ void Numerics::removepitch(int nodeIed, int lgfr)
 	}
 }
 
-void Numerics::update_periodic_nodes(int nodeIed, int index, double pitch_)
+void Numerics::update_periodic_nodes()
 {
 	int ifriend;
+	int nodeIed;
 	for (int p = 0; p < 121; p++)
 	{
-		if (nodeIed == iper[index][p])
-		{
-			if (index == 1)
-				ifriend = iper[0][p];
-			else
-				ifriend = iper[1][p];
-
-			break;
-		}
+		ifriend = iper[0][p];
+		nodeIed = iper[1][p];
+		coor[1][ifriend - 1] = coor[1][nodeIed - 1] - pitch;
+		// coorp[1][ifriend - 1] = coor[1][nodeIed - 1] - pitch;
+		coor[0][ifriend - 1] = coor[0][nodeIed - 1];
+		// coorp[0][ifriend - 1] = coorp[0][nodeIed - 1];
 	}
-
-	double y = coor[1][nodeIed - 1];
-	coor[1][ifriend - 1] = y + pitch_;
-	coor[0][ifriend - 1] = coor[0][nodeIed - 1];
-	coorp[0][ifriend - 1] = coorp[0][nodeIed - 1];
-	coorp[1][ifriend - 1] = y + pitch_; // B = A - PITCH
 }
 
 int Numerics::kountNeis(int nodeId)

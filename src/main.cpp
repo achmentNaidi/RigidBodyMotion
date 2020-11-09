@@ -24,7 +24,7 @@ int main()
 		gridInfo gInfo;
 		ioGrids ionGrid;
 
-		string filename = "siev";
+		string filename = "turbotri";
 		// 2. READ INITIAL MESH
 
 		ionGrid.read(filename);
@@ -37,7 +37,7 @@ int main()
 
 		// 4. MOVE GEOMETRY'S BOUNDARY
 		ionGrid.readDeformed2D_Unstructured(filename);
-	
+
 		gInfo = ionGrid.getInfo();
 
 		// 5. CREATE DATA STRUCTURE OF UNSTRUCTURED GRID
@@ -45,25 +45,29 @@ int main()
 		dataStructure2D.Create2D();
 
 		gInfo = ionGrid.getInfo();
+		gInfo.pitch = dataStructure2D.get_pitch();
+		ionGrid.checkPitch(gInfo.coor, dataStructure2D.get_iper(), gInfo.pitch);
 
 		// 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
 		// Numerics newtonRaphson2D(ginfo_un.coorp, ginfo_un.coor, ginfo_un.logfr, dataStructure2D.get_ndeg(),
 		// 	dataStructure2D.get_jaret(), ginfo_un.nu, ginfo_un.ns, ginfo_un.np);
 
 		Numerics newtonRaphson2D(gInfo.coorp, gInfo.coor, dataStructure2D.get_iper(), dataStructure2D.get_logfr(), dataStructure2D.get_ndeg(),
-			dataStructure2D.get_jaret(), gInfo.nu, gInfo.ns, gInfo.np, dataStructure2D.get_pitch());
+								 dataStructure2D.get_jaret(), gInfo.nu, gInfo.ns, gInfo.np, dataStructure2D.get_pitch());
 
 		newtonRaphson2D.Solver(3000);
 		// gInfo = ionGrid.getInfo2D_Unstructured();
 		gInfo = ionGrid.getInfo();
-
+		gInfo.pitch = dataStructure2D.get_pitch();
 		// 7. MESH QUALITY OF DEFORMED GEOMETRY MESH
 		gQuality.meshQuality2D(gInfo.coorp, gInfo.nu);
 
 		// 8. WRITE new.nod file
 		ionGrid.write_mesh(dim, gInfo.coorp, gInfo.coor, gInfo.logfr, gInfo.ns, "siev.nod");
-		ionGrid.write_Un3D(gInfo.coorp, "sievGnu.dat");
-		ionGrid.vtk_graphics_2D_unstr(gInfo.coorp);
+		// ionGrid.write_Un3D(gInfo.coorp, "sievGnu.dat");
+		ionGrid.vtk_graphics_2D_unstr(gInfo.coorp, filename + "_final");
+		ionGrid.vtk_graphics_2D_unstr(gInfo.coor, filename + "_initial");
+		ionGrid.checkPitch(gInfo.coorp, dataStructure2D.get_iper(), gInfo.pitch);
 		break;
 	}
 	case 3:
@@ -99,7 +103,7 @@ int main()
 
 		// 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
 		Numerics NewtonRaphson3D(Mesh3D.coorp, Mesh3D.coor, DS3D.get_iper(), Mesh3D.logfr, DS3D.get_ndeg(), DS3D.get_jaret(),
-			Mesh3D.nu, Mesh3D.ns, 0, DS3D.get_pitch());
+								 Mesh3D.nu, Mesh3D.ns, 0, DS3D.get_pitch());
 
 		NewtonRaphson3D.Solver(3000);
 

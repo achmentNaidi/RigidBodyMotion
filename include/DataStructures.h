@@ -21,7 +21,7 @@ struct gridInfo2D_Structured
 struct gridInfo
 {
 	vector<int> nu, logfr;
-	double **coor, **coorp;
+	double **coor, **coorp, pitch;
 	int nall, np, nq, ntet, npyr, npri, nhex;
 	int ns;
 };
@@ -40,9 +40,9 @@ public:
 	vector<int> get_ndeg() { return ndeg; }
 	vector<int> get_jaret() { return jaret; }
 	int get_nbseg() { return nbseg; }
-	vector <int> get_logfr() { return logfr; }
+	vector<int> get_logfr() { return logfr; }
 	double get_pitch() { return pitch; }
-	int ** get_iper() { return iper; }
+	int **get_iper() { return iper; }
 
 	~DataStructures();
 

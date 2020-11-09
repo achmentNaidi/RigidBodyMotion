@@ -32,12 +32,13 @@ public:
 	void write_mesh(int ndim, double **coorp, double **coor, vector<int> &logfr, int ns, string gridName);
 	void write_Un3D(double **coorp, string name);
 	void vtk_graphics_3D_unstr(double **coorp);
-	void vtk_graphics_2D_unstr(double **coorp);
+	void vtk_graphics_2D_unstr(double **coorp,string name);
 	void Stop(string message, string file, int line);
 	void Stop(string message);
 	bool readPatches(string filename);
 	void setListOfPatches(ifstream nod[]);
 	void readPatchesFile(string filename);
+	void checkPitch(double **coorp, int **iper, double pitch);
 
 	gridInfo2D_Structured getInfo2D_Structured() { return gInfo_st; }
 	gridInfo getInfo() { return gInfo; }

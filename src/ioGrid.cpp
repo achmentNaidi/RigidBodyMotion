@@ -450,7 +450,7 @@ void ioGrids::vtk_graphics_3D_unstr(double **coorp)
 	}
 }
 
-void ioGrids::vtk_graphics_2D_unstr(double **coorp)
+void ioGrids::vtk_graphics_2D_unstr(double **coorp, string name)
 {
 	const int ln = 1e6;
 	int np, npop, ns, nt;
@@ -486,7 +486,8 @@ void ioGrids::vtk_graphics_2D_unstr(double **coorp)
 	// }
 
 	ofstream vtk;
-	vtk.open("output_data/out2D_unstr.vtk");
+	name = "output_data/" + name + ".vtk";
+	vtk.open(name);
 
 	vtk << "# vtk DataFile Version 3.1" << endl;
 	vtk << "vtk output" << endl;
@@ -598,4 +599,14 @@ void ioGrids::setListOfPatches(ifstream nod[])
 		nod[ASCII] >> gInfo.logfr[i];
 }
 
+void ioGrids::checkPitch(double **coorp_, int **iper, double pitch)
+{
+
+	ofstream difPer;
+	difPer.open("output_data/pitchDiference.dat");
+	for (int i = 0; i < 121; i++)
+	{
+		difPer << setprecision(9) << coorp_[0][iper[1][i] - 1] << " " << abs(coorp_[1][iper[1][i] - 1] - coorp_[1][iper[0][i] - 1] - pitch) << endl;
+	}
+}
 ioGrids::~ioGrids() {}
