@@ -24,7 +24,7 @@ int main()
 		gridInfo gInfo;
 		ioGrids ionGrid;
 
-		string filename = "turbotri";
+		string filename = "box_in_box";
 		// 2. READ INITIAL MESH
 
 		ionGrid.read(filename);
@@ -46,19 +46,22 @@ int main()
 
 		gInfo = ionGrid.getInfo();
 		gInfo.pitch = dataStructure2D.get_pitch();
-		ionGrid.checkPitch(gInfo.coor, dataStructure2D.get_iper(), gInfo.pitch);
+		gInfo.nper = dataStructure2D.get_nper();
+		ionGrid.checkPitch(gInfo.coor, dataStructure2D.get_iper(), gInfo.pitch, gInfo.nper);
 
 		// 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
 		// Numerics newtonRaphson2D(ginfo_un.coorp, ginfo_un.coor, ginfo_un.logfr, dataStructure2D.get_ndeg(),
 		// 	dataStructure2D.get_jaret(), ginfo_un.nu, ginfo_un.ns, ginfo_un.np);
 
 		Numerics newtonRaphson2D(gInfo.coorp, gInfo.coor, dataStructure2D.get_iper(), dataStructure2D.get_logfr(), dataStructure2D.get_ndeg(),
-								 dataStructure2D.get_jaret(), gInfo.nu, gInfo.ns, gInfo.np, dataStructure2D.get_pitch());
+								 dataStructure2D.get_jaret(), gInfo.nu, gInfo.ns, gInfo.np, dataStructure2D.get_pitch(), gInfo.nper);
 
 		newtonRaphson2D.Solver(3000);
 		// gInfo = ionGrid.getInfo2D_Unstructured();
 		gInfo = ionGrid.getInfo();
 		gInfo.pitch = dataStructure2D.get_pitch();
+		gInfo.nper = dataStructure2D.get_nper();
+
 		// 7. MESH QUALITY OF DEFORMED GEOMETRY MESH
 		gQuality.meshQuality2D(gInfo.coorp, gInfo.nu);
 
@@ -67,7 +70,7 @@ int main()
 		// ionGrid.write_Un3D(gInfo.coorp, "sievGnu.dat");
 		ionGrid.vtk_graphics_2D_unstr(gInfo.coorp, filename + "_final");
 		ionGrid.vtk_graphics_2D_unstr(gInfo.coor, filename + "_initial");
-		ionGrid.checkPitch(gInfo.coorp, dataStructure2D.get_iper(), gInfo.pitch);
+		ionGrid.checkPitch(gInfo.coorp, dataStructure2D.get_iper(), gInfo.pitch, gInfo.nper);
 		break;
 	}
 	case 3:
@@ -76,7 +79,7 @@ int main()
 		gridInfo Mesh3D;
 		ioGrids ioGrid;
 
-		string filename = "wing";
+		string filename = "mesh1";
 
 		// 2. READ INITIAL MESH
 		// ioGrid.readInitialMesh("wing.ele", "NONE", "wing.nod");
@@ -87,9 +90,9 @@ int main()
 
 		// 3. INITIAL MESH QUALITY CHECK
 		qualityCheck MeshQuality;
-		//MeshQuality.shapeMetric(Mesh3D.coor, Mesh3D.ntet, "wing");
+		MeshQuality.shapeMetric(Mesh3D.coor, Mesh3D.ntet, filename);
 		//MeshQuality.aspectRatio(Mesh3D.coor, Mesh3D.ntet, "wing");
-		MeshQuality.Jacobian(Mesh3D.coor, Mesh3D.ntet, filename);
+		// MeshQuality.Jacobian(Mesh3D.coor, Mesh3D.ntet, filename);
 
 		// 4. CREATE DATA STRUCTURE OF UNSTRUCTURED GRID
 		DataStructures DS3D(Mesh3D.logfr, Mesh3D.ns, Mesh3D.coor,
@@ -98,12 +101,12 @@ int main()
 
 		// 5. MOVE GEOMETRY'S BOUNDARY
 		geomHandle GeometryHandle(Mesh3D.coor, Mesh3D.logfr, Mesh3D.ns);
-		Mesh3D.coorp = GeometryHandle.wingBending(0.1); // alpha = 0.1
+		Mesh3D.coorp = GeometryHandle.wingBending(0.5); // alpha = 0.1
 		//Mesh3D.coorp = GeometryHandle.wingTorsionBending(0.05); // alpha = 0.05
 
 		// 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
-		Numerics NewtonRaphson3D(Mesh3D.coorp, Mesh3D.coor, DS3D.get_iper(), Mesh3D.logfr, DS3D.get_ndeg(), DS3D.get_jaret(),
-								 Mesh3D.nu, Mesh3D.ns, 0, DS3D.get_pitch());
+		Numerics NewtonRaphson3D(Mesh3D.coorp, Mesh3D.coor, DS3D.get_iper(), DS3D.get_logfr(), DS3D.get_ndeg(), DS3D.get_jaret(),
+								 Mesh3D.nu, Mesh3D.ns, 0, DS3D.get_pitch(), Mesh3D.nper);
 
 		NewtonRaphson3D.Solver(3000);
 

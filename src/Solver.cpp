@@ -15,13 +15,13 @@
 Numerics::Numerics() {}
 
 Numerics::Numerics(double **coorp_, double **coor_, int **iper_, vector<int> logfr_, vector<int> ndeg_, vector<int> jaret_,
-				   vector<int> &nu_, int ns_, int np_, double pitch_) : coorp(coorp_), coor(coor_), iper(iper_), logfr(logfr_), ndeg(ndeg_), jaret(jaret_),
-																		nu(nu_), ns(ns_), np(np_), pitch(pitch_) {}
+				   vector<int> &nu_, int ns_, int np_, double pitch_, double nper_) : coorp(coorp_), coor(coor_), iper(iper_), logfr(logfr_), ndeg(ndeg_), jaret(jaret_),
+																					  nu(nu_), ns(ns_), np(np_), pitch(pitch_), nper(nper_) {}
 
 void Numerics::Solver(int Iterations)
 {
 	bool testInt;
-
+	ndeg[46545] -= 1;
 	qualityCheck triCheck(coorp, nu, np);
 
 	int kIterOut = 0, iterMax;
@@ -33,7 +33,7 @@ void Numerics::Solver(int Iterations)
 		vOld, wOld, zrms, zErrMax, zi2r, zi, Zexist;
 
 	int lime, lime1, kextra, pboundary = 1;
-
+	int ifriend;
 	ndim = 3;
 	dxi = matrix<double>(ndim, ns);
 	R = matrix<double>(ndim, ndim);
@@ -65,11 +65,10 @@ void Numerics::Solver(int Iterations)
 		{
 			if (logfr[is] != 0)
 			{
-				if (logfr[is] != 1)
-					if (logfr[is] != 11)
-						if (logfr[is] != 110)
-							if (logfr[is] != 111)
-								continue;
+				if (logfr[is] != pboundary)
+					if (logfr[is] != 110)
+						if (logfr[is] != 111)
+							continue;
 			}
 			mID = is; // current mID node
 
@@ -216,16 +215,16 @@ void Numerics::Solver(int Iterations)
 
 			if (logfr[mID] == 1)
 			{
+
 				removepitch(mID, 110);
-				// update_periodic_nodes(mID, 1, -pitch);
+				update_periodic_nodes(mID);
 			}
-			if (logfr[mID] == 11)
+			else if (logfr[mID] == 11)
 			{
 				addpitch(mID, 111);
-				// update_periodic_nodes(mID, 0, pitch);
+				update_periodic_nodes(mID);
 			}
 		}
-		update_periodic_nodes();
 
 		xrms = 0.;
 		yrms = 0.;
@@ -293,7 +292,6 @@ void Numerics::Solver(int Iterations)
 			else
 				maxiter += -1000 + kextra;
 		}
-
 	} while (kIterOut < maxiter);
 L30:;
 }
@@ -326,18 +324,26 @@ void Numerics::removepitch(int nodeIed, int lgfr)
 	}
 }
 
-void Numerics::update_periodic_nodes()
+void Numerics::update_periodic_nodes(int mID)
 {
 	int ifriend;
 	int nodeIed;
-	for (int p = 0; p < 121; p++)
+	for (int p = 0; p < nper; p++)
 	{
-		ifriend = iper[0][p];
-		nodeIed = iper[1][p];
-		coor[1][ifriend - 1] = coor[1][nodeIed - 1] - pitch;
-		// coorp[1][ifriend - 1] = coor[1][nodeIed - 1] - pitch;
-		coor[0][ifriend - 1] = coor[0][nodeIed - 1];
-		// coorp[0][ifriend - 1] = coorp[0][nodeIed - 1];
+		if (mID == iper[1][p])
+		{
+			ifriend = iper[0][p];
+			coorp[1][ifriend - 1] = coorp[1][mID - 1] - pitch;
+			coorp[0][ifriend - 1] = coorp[0][mID - 1];
+			break;
+		}
+		else if (mID == iper[0][p])
+		{
+			ifriend = iper[1][p];
+			coorp[1][ifriend - 1] = coorp[1][mID - 1] + pitch;
+			coorp[0][ifriend - 1] = coorp[0][mID - 1];
+			break;
+		}
 	}
 }
 
@@ -365,6 +371,7 @@ void Numerics::globalToLocal(int ndim, vector<double> &cM, int nodeID)
 		cM[id] = coor[id][nodeID - 1]; // exw valei -1 sto coor[id][nodeID]
 	}
 	//     Global to Local w.r.t. point M
+
 	for (int k = ndeg[nodeID - 1] + 1; k <= ndeg[nodeID]; k++)
 	{
 		inei = jaret[k];

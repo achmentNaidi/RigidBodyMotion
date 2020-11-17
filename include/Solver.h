@@ -14,7 +14,7 @@ class Numerics
 public:
 	Numerics();
 	Numerics(double **coorp, double **coor, int ** iper,vector<int> logfr, vector<int> ndeg, vector<int> jaret, vector<int> &nu,
-		int ns, int np, double pitch);
+		int ns, int np, double pitch,double nper);
 	void Solver(int Iterations);
 	~Numerics();
 
@@ -27,7 +27,7 @@ private:
 	//	----------------------------//
 
 	int ndim, ns, np, mID, neiTot, iter, inei;
-	double theta, cc, ss, sx, sy, dx, dy, pitch;
+	double theta, cc, ss, sx, sy, dx, dy, pitch, nper;
 	double aTerm, bTerm, xnei, ynei, xneiP, yneiP,
 		xrms, yrms, xErrMax, yErrMax, xi, yi, xi2r, yi2r;
 	double fun, dfun, dxOld, dyOld, thOld;
@@ -38,7 +38,7 @@ private:
 	void localToGlobal(int ndim, vector<double> &cM, int nodeID);
 	void addpitch(int mid, int lgfr);
 	void removepitch(int mid, int lgfr);
-	void update_periodic_nodes();
+	void update_periodic_nodes(int mID);
 	bool converged(double dxOld, double dyOld, double thOld,
 				   double dx, double dy, double theta);
 };

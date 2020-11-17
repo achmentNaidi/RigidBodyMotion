@@ -4,6 +4,7 @@
 #include <iostream>
 #include <fstream>
 #include <algorithm>
+#include <iterator>
 #include "qualityCheck.h"
 
 using namespace std;
@@ -23,7 +24,7 @@ struct gridInfo
 	vector<int> nu, logfr;
 	double **coor, **coorp, pitch;
 	int nall, np, nq, ntet, npyr, npri, nhex;
-	int ns;
+	int ns, nper;
 };
 
 class DataStructures
@@ -43,6 +44,7 @@ public:
 	vector<int> get_logfr() { return logfr; }
 	double get_pitch() { return pitch; }
 	int **get_iper() { return iper; }
+	int get_nper() { return nper; }
 
 	~DataStructures();
 
@@ -103,6 +105,7 @@ private:
 	void fjaret_el();
 	void matrix_mult(int nvar, double **xx, double **yy, double **zz, int mvar1, int mvar2, int mvar3);
 	void rotation_matrix(int nvar, int iop, double cm, double sm, double **rra, double **rrb);
+	void virtualPeriodicNeighbours();
 };
 
 template <class myType>

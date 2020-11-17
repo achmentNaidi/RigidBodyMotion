@@ -47,6 +47,8 @@ void DataStructures::Create2D()
 	fjaret2D();
 	cout << "fjaret completed...." << endl;
 
+	virtualPeriodicNeighbours();
+
 	//	  ------
 	//	  Ending
 	//	  ------
@@ -467,45 +469,45 @@ void DataStructures::numsegs2D()
 
 	// Build NUBO APPLE segments
 	// -------------------------------
-	fjaret2D();
-	vector<int> neisUP, neisDown;
-	int ifriend, inode, ivpseg1, ivpseg2, ifriendnei, inodenei;
-	for (int ip = 0; ip < nper; ip++)
-	{
-		inode = iper[1][ip];
-		ifriend = iper[0][ip];
-		for (unsigned int k = ndeg[ifriend - 1] + 1; k <= ndeg[ifriend]; k++)
-		{
-			ifriendnei = jaret[k];
-			if (logfr[ifriendnei] == 0 && logfr[ifriend] == 1)
-			{
-				nubo[0][nvseg + nseg] = inode;
-				nubo[1][nvseg + nseg] = ifriendnei;
-				nvseg++;
-				neisDown.push_back(ifriendnei);
-			}
-		}
-		for (unsigned int k = ndeg[inode - 1] + 1; k <= ndeg[inode]; k++)
-		{
-			inodenei = jaret[k];
-			if (logfr[inodenei] == 0 && logfr[inode] == 1)
-			{
-				nubo[0][nvseg + nseg] = ifriend;
-				nubo[1][nvseg + nseg] = inodenei;
-				nvseg++;
-				neisUP.push_back(inodenei);
-			}
-		}
+	// fjaret2D();
+	// vector<int> neisUP, neisDown;
+	// int ifriend, inode, ivpseg1, ivpseg2, ifriendnei, inodenei;
+	// for (int ip = 0; ip < nper; ip++)
+	// {
+	// 	inode = iper[1][ip];
+	// 	ifriend = iper[0][ip];
+	// 	for (unsigned int k = ndeg[ifriend - 1] + 1; k <= ndeg[ifriend]; k++)
+	// 	{
+	// 		ifriendnei = jaret[k];
+	// 		if (logfr[ifriendnei] == 0 && logfr[ifriend] == 1)
+	// 		{
+	// 			nubo[0][nvseg + nseg] = inode;
+	// 			nubo[1][nvseg + nseg] = ifriendnei;
+	// 			nvseg++;
+	// 			neisDown.push_back(ifriendnei);
+	// 		}
+	// 	}
+	// 	for (unsigned int k = ndeg[inode - 1] + 1; k <= ndeg[inode]; k++)
+	// 	{
+	// 		inodenei = jaret[k];
+	// 		if (logfr[inodenei] == 0 && logfr[inode] == 1)
+	// 		{
+	// 			nubo[0][nvseg + nseg] = ifriend;
+	// 			nubo[1][nvseg + nseg] = inodenei;
+	// 			nvseg++;
+	// 			neisUP.push_back(inodenei);
+	// 		}
+	// 	}
 
-		if (logfr[ifriend] == 1)
-			logfr[ifriend] = 11;
-	}
-	for (int x : neisDown)
-		logfr[x] = 110;
-	for (int x : neisUP)
-		logfr[x] = 111;
-	neisDown.clear();
-	neisUP.clear();
+	// 	if (logfr[ifriend] == 1)
+	// 		logfr[ifriend] = 11;
+	// }
+	// for (int x : neisDown)
+	// 	logfr[x] = 110;
+	// for (int x : neisUP)
+	// 	logfr[x] = 111;
+	// neisDown.clear();
+	// neisUP.clear();
 }
 
 void DataStructures::fjaret2D()
@@ -596,7 +598,7 @@ void DataStructures::Create3D()
 
 	/*------------------------------------------------
 	Find the Correspondence of Periodic nodes(iper)
-	------------------------------------------------*/
+	// ------------------------------------------------*/
 	if (isperiph == 1)
 	{
 		setperiph(); //  peripheral cascade
@@ -616,42 +618,44 @@ void DataStructures::Create3D()
 	Calculate + ve Element volumes(vol), may reorder nu
 	------------------------------------------------------*/
 
-	volumes();
-	cout << " volumes completed...." << endl;
+	// volumes();
+	// cout << " volumes completed...." << endl;
 
 	/*-------------------------------------------------- -
 	Numerate the faces, provisionally uses jaret(nubf)
 	-------------------------------------------------- -*/
-	numfaces();
-	cout << " numfaces completed...." << endl;
+	// numfaces();
+	// cout << " numfaces completed...." << endl;
 
 	/*
 	-------------------------------------------------------
 	!     Fill List of boundary faces, painted (listbf), (vnofac)
 	!     -------------------------------------------------------
 	*/
-	filistbf();
-	cout << " filistbf completed...." << endl;
+	// filistbf();
+	// cout << " filistbf completed...." << endl;
 
-	/*
-	-----------------------------------------------
-	!     Numerate the segments (nusg, jaret, ndeg, nubo)
-	!     -----------------------------------------------
-	*/
-	if (nper > 0)
-	{
-		perseg();
-		cout << " perseg completed...." << endl;
-	}
+	// /*
+	// -----------------------------------------------
+	// !     Numerate the segments (nusg, jaret, ndeg, nubo)
+	// !     -----------------------------------------------
+	// */
+	// if (nper > 0)
+	// {
+	// 	perseg();
+	// 	cout << " perseg completed...." << endl;
+	// }
 
 	/*
 	-------------------------------------------------
 	!     Calculate VNOCL for the segments and cell volume
 	!     -------------------------------------------------
 	*/
-
-	calvnocl();
 	numsegs3D();
+	virtualPeriodicNeighbours();
+	// nper = 0;
+	// calvnocl();
+
 	cout << " numsegs completed...." << endl;
 
 	/*
@@ -840,7 +844,7 @@ void DataStructures::setperio()
 
 	// Periodic nodes to be matched based on D(COORDS)<EPSILON
 
-	double eps = 1.e-13;
+	double eps = 1.e-5;
 	cout << "Periodic eps: " << eps;
 
 	// Matching Periodic Nodes, one by one
@@ -914,6 +918,7 @@ void DataStructures::setperio()
 	/* Prints and saves the pitch, only if Sequential Run
 	otherwise it will be sent by master
 	--------------------------------------------------*/
+	mpar = 10;
 	if (mpar == 0)
 	{
 		cout << "Found PITCH between: " << dsmin << " " << dsmax << endl;
@@ -922,7 +927,6 @@ void DataStructures::setperio()
 	{
 		pitch = 0.5 * (dsmin + dsmax);
 	}
-	pitch = pitch;
 	return;
 }
 
@@ -1787,7 +1791,7 @@ void DataStructures::numfaces()
 			if (nu[indp] <= 0)
 			{
 				cout << " Numfaces: Error with data at tetrahedra" << endl;
-				exit;
+				// exit;
 			}
 		}
 	}
@@ -1801,7 +1805,7 @@ void DataStructures::numfaces()
 			if (nu[indp] <= 0)
 			{
 				cout << " Numfaces: Error with data at pyramids" << endl;
-				exit;
+				// exit;
 			}
 		}
 	}
@@ -1814,8 +1818,8 @@ void DataStructures::numfaces()
 			nu[indp] = -nu[indp];
 			if (nu[indp] <= 0)
 			{
-				cout << " Numfaces: Error with data at tetrahedra" << endl;
-				exit;
+				cout << " Numfaces: Error with data at prisms" << endl;
+				// exit;
 			}
 		}
 	}
@@ -1830,7 +1834,7 @@ void DataStructures::numfaces()
 			if (nu[indp] <= 0)
 			{
 				cout << " Numfaces: Error with data at hexaedra" << endl;
-				exit;
+				// exit;
 			}
 		}
 	}
@@ -3366,7 +3370,7 @@ void DataStructures::perseg()
 
 void DataStructures::fjaret3D()
 {
-	int maxindex = 1000, nvmaxall_out, move, index, ielem, iaux, ind,
+	int maxindex = 10000, nvmaxall_out, move, index, ielem, iaux, ind,
 		knod, is1, isn, nei;
 	vector<int> newnod;
 	newnod.resize(maxindex + 1);
@@ -3714,6 +3718,67 @@ void DataStructures::rotation_matrix(int nvar, int iop, double cm, double sm, do
 	rrb[iop + 1][iop] = sm;
 	rrb[iop + 1][iop + 1] = cm;
 	return;
+}
+
+void DataStructures::virtualPeriodicNeighbours()
+{
+	vector<int> neisUP, neisDown;
+	vector<int> newInsert;
+	int ifriend, inode, ivpseg1, ivpseg2, ifriendnei, inodenei;
+	for (int ip = 0; ip < nper; ip++)
+	{
+		inode = iper[1][ip];
+		ifriend = iper[0][ip];
+		int counter = 0;
+		for (unsigned int k = ndeg[ifriend - 1] + 1; k <= ndeg[ifriend]; k++)
+		{
+			ifriendnei = jaret[k];
+
+			if (logfr[ifriendnei] == 0 && logfr[ifriend] == 1)
+			{
+				counter++;
+				newInsert.push_back(ifriendnei);
+				neisDown.push_back(ifriendnei);
+			}
+		}
+
+		if (counter == 0)
+		{
+			continue;
+		}
+
+		// keep old jaret from inode + 1 and after
+
+		vector<int>::iterator position;
+		position = jaret.begin();
+		advance(position, ndeg[inode] + 1);
+		insert_iterator<vector<int>> jaret_inserter(jaret, position);
+
+		// insert new virtual neighbours of inode in jaret after inode
+		int kounter = 0;
+		for (int neighbour : newInsert)
+		{
+			*jaret_inserter = neighbour;
+		}
+
+		// ndeg_new  = ndeg_old + number of new neighbours
+		for (int id = inode; id < ndeg.size();id++)
+		{
+			ndeg[id] += counter;
+		}
+
+		newInsert.clear();
+
+		if (logfr[ifriend] == 1)
+			logfr[ifriend] == 11;
+	}
+
+	for (int x : neisDown)
+	{
+		logfr[x] = 110;
+	}
+
+	neisDown.clear();
 }
 
 template <typename myType>
