@@ -5,6 +5,7 @@
         "fstream": "cpp",
         "iomanip": "cpp",
         "sstream": "cpp",
-        "ostream": "cpp"
+        "ostream": "cpp",
+        "writeCellsFile.C": "cpp"
     }
 }

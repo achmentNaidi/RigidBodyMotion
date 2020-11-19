@@ -100,10 +100,16 @@ int main()
 		DS3D.Create3D();
 
 		// 5. MOVE GEOMETRY'S BOUNDARY
-		geomHandle GeometryHandle(Mesh3D.coor, Mesh3D.logfr, Mesh3D.ns);
-		Mesh3D.coorp = GeometryHandle.wingBending(0.5); // alpha = 0.1
-		//Mesh3D.coorp = GeometryHandle.wingTorsionBending(0.05); // alpha = 0.05
 
+		geomHandle GeometryHandle(Mesh3D.coor, Mesh3D.logfr, Mesh3D.ns);
+		// GeometryHandle.wingBending(20); // alpha = 0.1
+		GeometryHandle.wingTorsionBending(1); // alpha = 0.05
+		// GeometryHandle.rotateGeometry(5., 0., 0.0);
+		GeometryHandle.translateGeometry(0.1, 0.3, 0.0);
+
+		Mesh3D.coorp = GeometryHandle.get_movement();
+
+		ioGrid.vtk_graphics_3D_unstr(Mesh3D.coorp);
 		// 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
 		Numerics NewtonRaphson3D(Mesh3D.coorp, Mesh3D.coor, DS3D.get_iper(), DS3D.get_logfr(), DS3D.get_ndeg(), DS3D.get_jaret(),
 								 Mesh3D.nu, Mesh3D.ns, 0, DS3D.get_pitch(), Mesh3D.nper);

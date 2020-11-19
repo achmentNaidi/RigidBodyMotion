@@ -18,9 +18,18 @@ class geomHandle
 public:
 	geomHandle(double **coor, vector<int> logfr, int ns);
 
-	double **wingBending(double alpha);
+	void wingBending(double alpha);
 
-	double **wingTorsionBending(double alpha);
+	void wingTorsionBending(double alpha);
+
+	void translateGeometry(double dx, double dy, double dz);
+
+	void rotateGeometry(double u, double v, double w);
+
+	double **get_movement()
+	{
+		return coorp;
+	}
 
 	centroid centerOfGravity(vector<double> x, vector<double> y);
 

@@ -2,7 +2,16 @@
 #include "DataStructures.h"
 
 geomHandle::geomHandle(double **coor_, vector<int> logfr_, int ns_)
-    : coor(coor_), logfr(logfr_), ns(ns_) {}
+    : coor(coor_), logfr(logfr_), ns(ns_)
+{
+    coorp = matrix<double>(3, ns);
+    for (int i = 0; i < ns; i++)
+    {
+        coorp[0][i] = coor[0][i];
+        coorp[1][i] = coor[1][i];
+        coorp[2][i] = coor[2][i];
+    }
+}
 
 void geomHandle::rotate2D(vector<double> &x, vector<double> &y, double cx, double cy, double angle)
 {
@@ -77,29 +86,27 @@ centroid geomHandle::centerOfGravity(vector<double> x_g, vector<double> y_g)
     return p;
 }
 
-double **geomHandle::wingBending(double alpha)
+void geomHandle::wingBending(double alpha)
 {
     // alpha = bending coefficient
-    double **coorp = matrix<double>(3, ns);
     for (int is = 1; is <= ns; is++)
     {
         if (logfr[is] == 3 || logfr[is] == 2)
         {
-            coorp[0][is - 1] = coor[0][is - 1];
-            coorp[1][is - 1] = coor[1][is - 1] + alpha * coor[2][is - 1] * coor[2][is - 1];
-            coorp[2][is - 1] = coor[2][is - 1];
+            coorp[0][is - 1] = coorp[0][is - 1];
+            coorp[1][is - 1] = coorp[1][is - 1] + alpha * coorp[2][is - 1] * coorp[2][is - 1];
+            coorp[2][is - 1] = coorp[2][is - 1];
         }
         else
         {
-            coorp[0][is - 1] = coor[0][is - 1];
-            coorp[1][is - 1] = coor[1][is - 1];
-            coorp[2][is - 1] = coor[2][is - 1];
+            coorp[0][is - 1] = coorp[0][is - 1];
+            coorp[1][is - 1] = coorp[1][is - 1];
+            coorp[2][is - 1] = coorp[2][is - 1];
         }
     }
-    return coorp;
 }
 
-double **geomHandle::wingTorsionBending(double alpha)
+void geomHandle::wingTorsionBending(double alpha)
 {
 
     /*
@@ -108,33 +115,101 @@ double **geomHandle::wingTorsionBending(double alpha)
     */
 
     // alpha = bending coefficient
-    double **coorp = matrix<double>(3, ns);
     double phi, xr, yr = 5.;
     for (int is = 1; is <= ns; is++)
     {
         if (logfr[is] == 3 || logfr[is] == 2)
         {
-            coorp[0][is - 1] = coor[0][is - 1];
-            coorp[1][is - 1] = coor[1][is - 1] + alpha * coor[2][is - 1] * coor[2][is - 1];
-            coorp[2][is - 1] = coor[2][is - 1];
+            coorp[0][is - 1] = coorp[0][is - 1];
+            coorp[1][is - 1] = coorp[1][is - 1] + alpha * coorp[2][is - 1] * coorp[2][is - 1];
+            coorp[2][is - 1] = coorp[2][is - 1];
 
-            xr = 5.25 + 0.45 * coor[2][is - 1];
-            phi = alpha * pow(coor[2][is - 1], 2);
+            xr = 5.25 + 0.45 * coorp[2][is - 1];
+            phi = alpha * pow(coorp[2][is - 1], 2);
 
-            coorp[0][is - 1] = (coor[0][is - 1] - xr) * cos(phi) -
-                               (coor[1][is - 1] - yr) * sin(phi) + xr;
-            coorp[1][is - 1] = (coor[1][is - 1] - yr) * cos(phi) -
-                               (coor[0][is - 1] - xr) * sin(phi) + yr + phi;
-            coorp[2][is - 1] = coor[2][is - 1];
+            coorp[0][is - 1] = (coorp[0][is - 1] - xr) * cos(phi) -
+                               (coorp[1][is - 1] - yr) * sin(phi) + xr;
+            coorp[1][is - 1] = (coorp[1][is - 1] - yr) * cos(phi) -
+                               (coorp[0][is - 1] - xr) * sin(phi) + yr + phi;
+            coorp[2][is - 1] = coorp[2][is - 1];
         }
         else
         {
-            coorp[0][is - 1] = coor[0][is - 1];
-            coorp[1][is - 1] = coor[1][is - 1];
-            coorp[2][is - 1] = coor[2][is - 1];
+            coorp[0][is - 1] = coorp[0][is - 1];
+            coorp[1][is - 1] = coorp[1][is - 1];
+            coorp[2][is - 1] = coorp[2][is - 1];
         }
     }
-    return coorp;
+}
+
+void geomHandle::translateGeometry(double dx, double dy, double dz)
+{
+
+    double phi, xr, yr = 5.;
+    for (int is = 1; is <= ns; is++)
+    {
+        if (logfr[is] == 3 || logfr[is] == 2)
+        {
+            coorp[0][is - 1] = coorp[0][is - 1] + dx;
+            coorp[1][is - 1] = coorp[1][is - 1] + dy;
+            coorp[2][is - 1] = coorp[2][is - 1] + dz;
+        }
+        else
+        {
+            coorp[0][is - 1] = coorp[0][is - 1];
+            coorp[1][is - 1] = coorp[1][is - 1];
+            coorp[2][is - 1] = coorp[2][is - 1];
+        }
+    }
+}
+
+void geomHandle::rotateGeometry(double u, double v, double w)
+{
+
+    // Rotation point X,Y,Z
+
+    double **R = matrix<double>(3, 3);
+    u = u * 3.141592653589 / 180.;
+    v = v * 3.141592653589 / 180.;
+    w = w * 3.141592653589 / 180.;
+
+    double ccu = cos(u);
+    double ssu = sin(u);
+    double ccv = cos(v);
+    double ssv = sin(v);
+    double ccw = cos(w);
+    double ssw = sin(w);
+
+    /*
+					  Creating R table
+					  ----------------
+					  */
+    R[0][0] = ccv * ccw;
+    R[0][1] = -(ccu * ssw) + (ccw * ssu * ssv);
+    R[0][2] = (ssu * ssw) + (ccu * ccw * ssv);
+    R[1][0] = ccv * ssw;
+    R[1][1] = (ccu * ccw) + (ssu * ssv * ssw);
+    R[1][2] = -(ccw * ssu) + (ssv * ssw * ccu);
+    R[2][0] = -ssv;
+    R[2][1] = ccv * ssu;
+    R[2][2] = ccu * ccv;
+
+    for (int inei = 1; inei <= ns; inei++)
+    {
+        if (logfr[inei] == 3)
+        {
+
+            coorp[0][inei - 1] = -R[0][0] * coor[0][inei - 1] - R[0][1] * coor[1][inei - 1] - R[0][2] * coor[2][inei - 1];
+            coorp[1][inei - 1] = -R[1][0] * coor[0][inei - 1] - R[1][1] * coor[1][inei - 1] - R[1][2] * coor[2][inei - 1];
+            coorp[2][inei - 1] = -R[2][0] * coor[0][inei - 1] - R[2][1] * coor[1][inei - 1] - R[2][2] * coor[2][inei - 1];
+        }
+        else
+        {
+            coorp[0][inei - 1] = coor[0][inei - 1];
+            coorp[1][inei - 1] = coor[1][inei - 1];
+            coorp[2][inei - 1] = coor[2][inei - 1];
+        }
+    }
 }
 
 void geomHandle::getGeometry()
