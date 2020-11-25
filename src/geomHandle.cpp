@@ -199,9 +199,9 @@ void geomHandle::rotateGeometry(double u, double v, double w)
         if (logfr[inei] == 3)
         {
 
-            coorp[0][inei - 1] = -R[0][0] * coor[0][inei - 1] - R[0][1] * coor[1][inei - 1] - R[0][2] * coor[2][inei - 1];
-            coorp[1][inei - 1] = -R[1][0] * coor[0][inei - 1] - R[1][1] * coor[1][inei - 1] - R[1][2] * coor[2][inei - 1];
-            coorp[2][inei - 1] = -R[2][0] * coor[0][inei - 1] - R[2][1] * coor[1][inei - 1] - R[2][2] * coor[2][inei - 1];
+            coorp[0][inei - 1] = R[0][0] * coor[0][inei - 1] + R[0][1] * coor[1][inei - 1] + R[0][2] * coor[2][inei - 1];
+            coorp[1][inei - 1] = R[1][0] * coor[0][inei - 1] + R[1][1] * coor[1][inei - 1] + R[1][2] * coor[2][inei - 1];
+            coorp[2][inei - 1] = R[2][0] * coor[0][inei - 1] + R[2][1] * coor[1][inei - 1] + R[2][2] * coor[2][inei - 1];
         }
         else
         {

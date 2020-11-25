@@ -36,9 +36,9 @@ int main()
 		gQuality.meshQuality2D(gInfo.coor, gInfo.nu);
 
 		// 4. MOVE GEOMETRY'S BOUNDARY
-		ionGrid.readDeformed2D_Unstructured(filename);
+		// ionGrid.readDeformed2D_Unstructured(filename);
 
-		gInfo = ionGrid.getInfo();
+		// gInfo = ionGrid.getInfo();
 
 		// 5. CREATE DATA STRUCTURE OF UNSTRUCTURED GRID
 		DataStructures dataStructure2D(gInfo.ns, gInfo.np, gInfo.nq, gInfo.coor, gInfo.logfr, gInfo.nu);
@@ -49,6 +49,13 @@ int main()
 		gInfo.nper = dataStructure2D.get_nper();
 		ionGrid.checkPitch(gInfo.coor, dataStructure2D.get_iper(), gInfo.pitch, gInfo.nper);
 
+		geomHandle GeometryHandle(gInfo.coor, gInfo.logfr, gInfo.ns);
+		// GeometryHandle.wingBending(20); // alpha = 0.1
+		// GeometryHandle.wingTorsionBending(1); // alpha = 0.05
+		GeometryHandle.rotateGeometry(0., 0., 10.0);
+		gInfo.coorp = GeometryHandle.get_movement();
+		ionGrid.vtk_graphics_2D_unstr(gInfo.coorp, filename + "_final");
+
 		// 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
 		// Numerics newtonRaphson2D(ginfo_un.coorp, ginfo_un.coor, ginfo_un.logfr, dataStructure2D.get_ndeg(),
 		// 	dataStructure2D.get_jaret(), ginfo_un.nu, ginfo_un.ns, ginfo_un.np);
@@ -58,15 +65,15 @@ int main()
 
 		newtonRaphson2D.Solver(3000);
 		// gInfo = ionGrid.getInfo2D_Unstructured();
-		gInfo = ionGrid.getInfo();
+		// gInfo = ionGrid.getInfo();
 		gInfo.pitch = dataStructure2D.get_pitch();
 		gInfo.nper = dataStructure2D.get_nper();
 
 		// 7. MESH QUALITY OF DEFORMED GEOMETRY MESH
-		gQuality.meshQuality2D(gInfo.coorp, gInfo.nu);
+		//gQuality.meshQuality2D(gInfo.coorp, gInfo.nu);
 
 		// 8. WRITE new.nod file
-		ionGrid.write_mesh(dim, gInfo.coorp, gInfo.coor, gInfo.logfr, gInfo.ns, "siev.nod");
+		//ionGrid.write_mesh(dim, gInfo.coorp, gInfo.coor, gInfo.logfr, gInfo.ns, "siev.nod");
 		// ionGrid.write_Un3D(gInfo.coorp, "sievGnu.dat");
 		ionGrid.vtk_graphics_2D_unstr(gInfo.coorp, filename + "_final");
 		ionGrid.vtk_graphics_2D_unstr(gInfo.coor, filename + "_initial");
@@ -103,13 +110,13 @@ int main()
 
 		geomHandle GeometryHandle(Mesh3D.coor, Mesh3D.logfr, Mesh3D.ns);
 		// GeometryHandle.wingBending(20); // alpha = 0.1
-		GeometryHandle.wingTorsionBending(1); // alpha = 0.05
-		// GeometryHandle.rotateGeometry(5., 0., 0.0);
-		GeometryHandle.translateGeometry(0.1, 0.3, 0.0);
+		// GeometryHandle.wingTorsionBending(1); // alpha = 0.05
+		GeometryHandle.rotateGeometry(15., 15., 10.0);
+		GeometryHandle.translateGeometry(0.0, 0.25, -0.0);
 
 		Mesh3D.coorp = GeometryHandle.get_movement();
 
-		ioGrid.vtk_graphics_3D_unstr(Mesh3D.coorp);
+		// ioGrid.vtk_graphics_3D_unstr(Mesh3D.coorp);
 		// 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
 		Numerics NewtonRaphson3D(Mesh3D.coorp, Mesh3D.coor, DS3D.get_iper(), DS3D.get_logfr(), DS3D.get_ndeg(), DS3D.get_jaret(),
 								 Mesh3D.nu, Mesh3D.ns, 0, DS3D.get_pitch(), Mesh3D.nper);

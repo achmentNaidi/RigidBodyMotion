@@ -3762,7 +3762,7 @@ void DataStructures::virtualPeriodicNeighbours()
 		}
 
 		// ndeg_new  = ndeg_old + number of new neighbours
-		for (int id = inode; id < ndeg.size();id++)
+		for (int id = inode; id < ndeg.size(); id++)
 		{
 			ndeg[id] += counter;
 		}
@@ -3770,7 +3770,7 @@ void DataStructures::virtualPeriodicNeighbours()
 		newInsert.clear();
 
 		if (logfr[ifriend] == 1)
-			logfr[ifriend] == 11;
+			logfr[ifriend] = 11;
 	}
 
 	for (int x : neisDown)
