@@ -382,8 +382,6 @@ void ioGrids::vtk_graphics_3D_unstr(double **coorp)
 	cout << "DIMENSIONS : [ Total Nodes " << gInfo.ns << " ]" << endl;
 	cout << "-------------------------------------" << endl;
 
-	npop = 4 * ntet;
-
 	ofstream vtk;
 	vtk.open("output_data/out3D_unstr.vtk");
 
