@@ -5,6 +5,7 @@
 #include "DataStructures.h"
 #include "Solver.h"
 #include "geomHandle.h"
+#include "interpolationMethods.h"
 #include "ioGrid.h"
 #include "qualityCheck.h"
 
@@ -23,7 +24,7 @@ int main() {
             gridInfo gInfo;
             ioGrids ionGrid;
 
-            string filename = "box_in_box";
+            string filename = "siev";
             // 2. READ INITIAL MESH
 
             ionGrid.read(filename);
@@ -41,19 +42,24 @@ int main() {
 
             // 5. CREATE DATA STRUCTURE OF UNSTRUCTURED GRID
             DataStructures dataStructure2D(gInfo.ns, gInfo.np, gInfo.nq, gInfo.coor, gInfo.logfr, gInfo.nu);
-            dataStructure2D.setPeriodicityConstants(0, 0, 1);
+            dataStructure2D.setPeriodicityConstants(true, 0, 0, 0);
             dataStructure2D.Create2D();
 
             gInfo = ionGrid.getInfo();
             gInfo.pitch = dataStructure2D.get_pitch();
             gInfo.nper = dataStructure2D.get_nper();
-            ionGrid.checkPitch(gInfo.coor, dataStructure2D.get_iper(), gInfo.pitch, gInfo.nper);
+            // ionGrid.checkPitch(gInfo.coor, dataStructure2D.get_iper(), gInfo.pitch, gInfo.nper);
 
             geomHandle GeometryHandle(gInfo.coor, gInfo.logfr, gInfo.ns);
             // GeometryHandle.wingBending(20); // alpha = 0.1
             // GeometryHandle.wingTorsionBending(1); // alpha = 0.05
-            GeometryHandle.rotateGeometry(0., 0., 10.0);
+
+            // GeometryHandle.translateGeometry(0.1, 0.2, 0.0);
+            GeometryHandle.rotateGeometry(0., 0., 4.0);
             gInfo.coorp = GeometryHandle.get_movement();
+
+            deformAlgebraic method(gInfo.coor, gInfo.coorp, gInfo.logfr, gInfo.ns);
+            gInfo.coorp = method.IDW(3, 7);
             ionGrid.vtk_graphics_2D_unstr(gInfo.coorp, filename + "_final");
 
             // 6. ADAPTATION OF INITIAL MESH WITH RBM METHOD
@@ -106,7 +112,7 @@ int main() {
             // 4. CREATE DATA STRUCTURE OF UNSTRUCTURED GRID
             DataStructures DS3D(Mesh3D.logfr, Mesh3D.ns, Mesh3D.coor,
                                 Mesh3D.ntet, Mesh3D.npyr, Mesh3D.npri, Mesh3D.nhex, Mesh3D.nall, Mesh3D.nu);
-            DS3D.setPeriodicityConstants(0, 0, 1);
+            DS3D.setPeriodicityConstants(true, 0, 0, 1);
             DS3D.Create3D();
             Mesh3D.pitch = DS3D.get_pitch();
             Mesh3D.nper = DS3D.get_nper();

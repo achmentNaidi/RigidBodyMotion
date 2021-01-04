@@ -38,7 +38,7 @@ class DataStructures {
     void Create2D();
 
     void Create3D();
-    void setPeriodicityConstants(int mpar, int kaxial, int isperiph);
+    void setPeriodicityConstants(bool isPeriodic, int mpar, int kaxial, int isperiph);
     vector<int> get_ndeg() { return ndeg; }
     vector<int> get_jaret() { return jaret; }
     int get_nbseg() { return nbseg; }
@@ -48,6 +48,7 @@ class DataStructures {
     int get_nper() { return nper; }
 
     int mpar, kaxial, isperiph, nper;
+    bool isPeriodic = false;
 
     ~DataStructures();
 

@@ -36,20 +36,25 @@ void DataStructures::Create2D() {
     //	--------------------------------------------------
     //	Numerate the segments(nubo, nusg, ibsg2tr)
     //	 -------------------------------------------------
-    if (isperiph == 1) {
-        setperiph();  //  peripheral cascade
-        cout << " setperiph completed...." << endl;
+    if (isPeriodic) {
+        if (isperiph == 1) {
+            setperiph();  //  peripheral cascade
+            cout << " setperiph completed...." << endl;
+        } else {
+            setperio();  //  linear cascade
+            cout << " setperio completed...." << endl;
+        }
+        numsegs2D();  // provisionally uses jaret, ndeg
+        cout << "numsegs completed...." << endl;
+        fjaret2D();
+        cout << "fjaret completed...." << endl;
+        virtualPeriodicNeighbours();
     } else {
-        setperio();  //  linear cascade
-        cout << " setperio completed...." << endl;
+        numsegs2D();  // provisionally uses jaret, ndeg
+        cout << "numsegs completed...." << endl;
+        fjaret2D();
+        cout << "fjaret completed...." << endl;
     }
-
-    numsegs2D();  // provisionally uses jaret, ndeg
-    cout << "numsegs completed...." << endl;
-    fjaret2D();
-    cout << "fjaret completed...." << endl;
-
-    virtualPeriodicNeighbours();
 
     //	  ------
     //	  Ending
@@ -490,17 +495,33 @@ void DataStructures::Create3D() {
     /*------------------------------------------------
 	Find the Correspondence of Periodic nodes(iper)
 	// ------------------------------------------------*/
-    if (isperiph == 1) {
-        setperiph();  //  peripheral cascade
-        cout << " setperiph completed...." << endl;
+    if (isPeriodic) {
+        if (isperiph == 1) {
+            setperiph();  //  peripheral cascade
+            cout << " setperiph completed...." << endl;
+        } else {
+            setperio();  //  linear cascade
+            cout << " setperio completed...." << endl;
+        }
+        if (nper > 0) {
+            cout << " Pint = " << pint;
+            cout << " Pext = " << pext;
+        }
+        numsegs3D();
+        virtualPeriodicNeighbours();
+        // nper = 0;
+        // calvnocl();
+
+        cout << " numsegs completed...." << endl;
     } else {
-        setperio();  //  linear cascade
-        cout << " setperio completed...." << endl;
+        numsegs3D();
+        virtualPeriodicNeighbours();
+        // nper = 0;
+        // calvnocl();
+
+        cout << " numsegs completed...." << endl;
     }
-    if (nper > 0) {
-        cout << " Pint = " << pint;
-        cout << " Pext = " << pext;
-    }
+
     /*----------------------------------------------------
 	Calculate + ve Element volumes(vol), may reorder nu
 	------------------------------------------------------*/
@@ -538,13 +559,6 @@ void DataStructures::Create3D() {
 	!     Calculate VNOCL for the segments and cell volume
 	!     -------------------------------------------------
 	*/
-    numsegs3D();
-    virtualPeriodicNeighbours();
-    // nper = 0;
-    // calvnocl();
-
-    cout << " numsegs completed...." << endl;
-
     /*
 	--------------------------------------------------
 	!     Find pairs of periodic segments (ipersg)
@@ -667,7 +681,8 @@ void DataStructures::analnode(int kkk0, int &mposa, int &m100,
     m001 = kkk0 - m010 * 10;
 }
 
-void DataStructures::setPeriodicityConstants(int mpar_, int kaxial_, int isperiph_) {
+void DataStructures::setPeriodicityConstants(bool isPeriodic_, int mpar_, int kaxial_, int isperiph_) {
+    isPeriodic = isPeriodic_;
     mpar = mpar_;
     kaxial = kaxial_;
     isperiph = isperiph_;
@@ -3336,7 +3351,6 @@ void DataStructures::virtualPeriodicNeighbours() {
         position = jaret.begin();
         advance(position, ndeg[inode] + 1);
         insert_iterator<vector<int>> jaret_inserter(jaret, position);
-        
 
         // insert new virtual neighbours of inode in jaret after inode
         int kounter = 0;
